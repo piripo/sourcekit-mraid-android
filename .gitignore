@@ -1,0 +1,4 @@
+demo/app/bin/*
+demo/app/gen/*
+src/bin/*
+src/gen/*

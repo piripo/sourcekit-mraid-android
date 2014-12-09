@@ -18,7 +18,7 @@
 		"NONE"    : 4
 	};
 
-	var logLevel = LogLevelEnum.DEBUG;
+	var logLevel = LogLevelEnum.NONE;
 	var log = {};
 
 	log.d = function(msg) {
@@ -822,7 +822,7 @@
     }
 	
 	mraid.dumpListeners = function() {
-		var nEvents = Object.keys(listeners).length
+		var nEvents = Object.keys(listeners).length;
 		log.i("dumping listeners (" + nEvents + " events)");
 		for ( var event in listeners) {
 			var eventListeners = listeners[event];

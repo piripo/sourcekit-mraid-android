@@ -1,15 +1,15 @@
-Nexage Integration SourceKit for MRAID
-======================================
+Nexage SourceKit-MRAID For Android
+==================================
 
-Nexage Integration SourceKit for MRAID is an easy to use library which implements the IAB MRAID 2.0 spec (http://www.iab.net/guidelines/508676/mobile_guidance/mraid). It is 
-written for Android and works in both phone and tablet applications.
+Nexage SourceKit-MRAID For Android is an open sourced IAB MRAID 2.0 compliant rendering engine for HTML ad creatives.
+
+For more information on IAB MRAID 2.0 compliance please visit http://www.iab.net/guidelines/508676/mobile_guidance/mraid
 
 **Features:**
 
 - MRAID 2 implementation
 - Handles full/fragment HTML
-- 4 level logging
-- Integrates with just a few lines of code
+- Custom browser
 
 **Requirements:**
 
@@ -19,64 +19,73 @@ written for Android and works in both phone and tablet applications.
 Getting Started
 ===============
 
-Step 1: Include MRAID project.
+Step 1: Import the MRAID project into your Eclipse workspace.
 
-Step 2: Include MRAID Library under Project Properties -> Android section
+Step 2: Include the MRAID library in your project under Project Properties -> Android -> Library.
 
-Step 3: Import these header file(s) into your project:
-
-	import org.nexage.sourcekit.mraid.MRAIDNativeFeature;
-	import org.nexage.sourcekit.mraid.MRAIDNativeFeatureListener;
-	import org.nexage.sourcekit.mraid.MRAIDView;
-	import org.nexage.sourcekit.mraid.MRAIDViewListener;
-
-Step 4: Add the following Activity into AndroidManifest.xml:
+Step 3: Add the following Activity into AndroidManifest.xml under the <application> tag.
 
 	<activity
-        android:name="org.nexage.sourcekit.vast.player.MRAIDPlayer"
-        android:label="@string/app_name" >        
-    </activity>
-    
-Step 5: Add the following permissions:
+		android:name="org.nexage.sourcekit.mraid.MRAIDBrowser"
+		android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+		android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+Step 4: Add the following permissions to the AndroidManifest.xml under the <manifest> tag.
 
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-	
-Step 6: Create an MRAIDView and add it to your container view, as in this example:
+	<uses-permission android:name="android.permission.WRITE_CALENDAR" />
+	<uses-permission android:name="android.permission.CALL_PHONE" />
+	<uses-permission android:name="android.permission.SEND_SMS" />
+
+Step 5: Use MRAID in your project.
 
 For a Banner:
 
-     MRAIDView mraidView = new MRAIDView(getApplicationContext(), baseUrl, content, 
-     		{MRAIDNativeFeature.CALENDAR, 
-            MRAIDNativeFeature.INLINE_VIDEO, 
-            MRAIDNativeFeature.SMS, 
-            MRAIDNativeFeature.STORE_PICTURE, 
-            MRAIDNativeFeature.TEL}, this, this);
+	RelativeLayout rootView = (RelativeLayout) findViewById(R.id.root_view);
 
-**Note:** You must provide the creative content as a string along with a baseUrl.  The creative may be either an HTML fragment or full HTML. Implement MRAIDViewListener, MRAIDNativeFeatureListener to listen for important notifications.
+	String[] supportedNativeFeatures = {
+		MRAIDNativeFeature.CALENDAR,
+		MRAIDNativeFeature.INLINE_VIDEO,
+		MRAIDNativeFeature.SMS,
+		MRAIDNativeFeature.STORE_PICTURE,
+		MRAIDNativeFeature.TEL,
+	};
+
+	MRAIDView mraidView = new MRAIDView(this, baseUrl, content, supportedNativeFeatures, this, this);
+	mraidView.setLayoutParams(params);
+
+	rootView.addView(mraidView);
+
+Implement MRAIDViewListener and MRAIDNativeFeatureListener in your activity to listen for MRAIDView callbacks and HTML creative events.
 
 For an Interstitial:
-	
-	interstitial = new MRAIDInterstitial(getApplicationContext(), baseUrl, content, 
-     		{MRAIDNativeFeature.CALENDAR, 
-     		MRAIDNativeFeature.INLINE_VIDEO, 
-	        MRAIDNativeFeature.SMS, 
-	        MRAIDNativeFeature.STORE_PICTURE, 
-	        MRAIDNativeFeature.TEL}, this, this);
 
-**Note:** You must provide the creative content as a string along with a baseUrl.  The creative may be either an HTML fragment or full HTML. Implement MRAIDInterstitialListener, MRAIDNativeFeatureListener to listen for important notifications.
+	String[] supportedNativeFeatures = {
+		MRAIDNativeFeature.CALENDAR,
+		MRAIDNativeFeature.INLINE_VIDEO,
+		MRAIDNativeFeature.SMS,
+		MRAIDNativeFeature.STORE_PICTURE,
+		MRAIDNativeFeature.TEL,
+	};
 
-Wait for the MRAIDInterstitialListener 'mraidInterstitialLoaded' callback and do the following when the Ad is ready to be shown on screen:
+	MRAIDInterstitial mraidInterstitial = new MRAIDInterstitial(this, baseUrl, content, supportedNativeFeatures, this, this);
 
-	interstitial.show();
+Implement MRAIDInterstitialListener and MRAIDNativeFeatureListener in your activity to listen for MRAIDView callbacks and HTML creative events.
 
-That's it! 
+The MRAIDInterstitialListener 'mraidInterstitialLoaded' callback will signal that there is an ad ready to be shown:
+
+	mraidInterstitial.show();
+
+**Note:** You must provide the creative content as a string along with a baseUrl for both MRAIDView and MRAIDInterstitial. The creative may be either an HTML fragment or full HTML.
+
+That's it!
 
 
 LICENSE
 =======
 
-Copyright (c) 2014, Nexage, Inc.<br/> 
+Copyright (c) 2014, Nexage, Inc.<br/>
 All rights reserved.<br/>
 Provided under BSD-3 license as follows:<br/>
 

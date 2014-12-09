@@ -12,6 +12,8 @@ import org.nexage.sourcekit.mraid.MRAIDInterstitialListener;
 import org.nexage.sourcekit.mraid.MRAIDNativeFeature;
 import org.nexage.sourcekit.mraid.MRAIDNativeFeatureListener;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
@@ -151,6 +153,10 @@ public class InterstitialFragment extends ListFragment implements MRAIDInterstit
     @Override
     public void mraidNativeFeatureOpenBrowser(String url) {
         Log.d(TAG + "-MRAIDNativeFeatureListener", "mraidNativeFeatureOpenBrowser " + url);
+        
+     // Demo will open the URL in an external browser
+        startActivity(new Intent(Intent.ACTION_VIEW, 
+        	    Uri.parse(url)));
     }
 
     @Override

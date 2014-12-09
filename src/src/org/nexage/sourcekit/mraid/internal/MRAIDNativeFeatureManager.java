@@ -1,6 +1,6 @@
 package org.nexage.sourcekit.mraid.internal;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.nexage.sourcekit.mraid.MRAIDNativeFeature;
 
@@ -11,12 +11,12 @@ import android.os.Build;
 
 public class MRAIDNativeFeatureManager {
     
-    private final static String TAG = "MRAIDNativeFeatureManager";
+	private final static String TAG = "MRAIDNativeFeatureManager";
     
     private Context context;
-    private List<String> supportedNativeFeatures;
+    private ArrayList<String> supportedNativeFeatures;
     
-    public MRAIDNativeFeatureManager(Context context, List<String> supportedNativeFeatures) {
+    public MRAIDNativeFeatureManager(Context context, ArrayList<String> supportedNativeFeatures) {
         this.context = context;
         this.supportedNativeFeatures = supportedNativeFeatures;
     }
@@ -59,4 +59,7 @@ public class MRAIDNativeFeatureManager {
         return retval;
     }
 
+    public ArrayList<String> getSupportedNativeFeatures() {
+    	return supportedNativeFeatures;
+    }
 }

@@ -31,7 +31,10 @@
         </activity>
 
         <!-- android:theme="@android:style/Theme.NoTitleBar.Fullscreen" -->
-
+<activity
+            android:name="org.nexage.sourcekit.mraid.MRAIDBrowser"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
             android:name=".BannerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"

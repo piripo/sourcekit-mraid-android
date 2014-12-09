@@ -1,5 +1,7 @@
 package org.nexage.sourcekit.mraiddemo;
 
+import org.nexage.sourcekit.mraid.internal.MRAIDLog;
+import org.nexage.sourcekit.mraid.internal.MRAIDLog.LOG_LEVEL;
 import org.nexage.sourcekit.mraiddemo.adapter.MyPagerAdapter;
 
 import android.app.ActionBar;
@@ -22,7 +24,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+		MRAIDLog.setLoggingLevel(LOG_LEVEL.verbose);
         viewPager = (ViewPager)findViewById(R.id.pager);
         actionBar = getActionBar();
         pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());

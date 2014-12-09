@@ -40,8 +40,8 @@ public class MRAIDHtmlProcessor {
         String ls = System.getProperty("line.separator");
 
         if (!hasHtmlTag) {
-            processedHtml.insert(0, "<html>" + ls + "<head>" + ls + "</head>" + ls + "<body>" + ls);
-            processedHtml.append("</body>" + ls + "</html>");
+            processedHtml.insert(0, "<html>" + ls + "<head>" + ls + "</head>" + ls + "<body><div align='center'>" + ls);
+            processedHtml.append("</div></body>" + ls + "</html>");
         } else if (!hasHeadTag) {
             // html tag exists, head tag doesn't, so add it
             regex = "<html[^>]*>";
@@ -60,7 +60,7 @@ public class MRAIDHtmlProcessor {
 
         String styleTag =
                 "<style>" + ls +
-                "body { margin:0; padding:0; }" + ls +
+                "body { margin:0; padding:0;}" + ls +
                 "*:not(input) { -webkit-touch-callout:none; -webkit-user-select:none; -webkit-text-size-adjust:none; }" + ls +
                 "</style>";
 

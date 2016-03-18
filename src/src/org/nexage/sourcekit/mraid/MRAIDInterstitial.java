@@ -1,9 +1,9 @@
 package org.nexage.sourcekit.mraid;
 
-import org.nexage.sourcekit.mraid.internal.MRAIDLog;
-
 import android.content.Context;
 import android.util.Log;
+
+import org.nexage.sourcekit.mraid.internal.MRAIDLog;
 
 public class MRAIDInterstitial implements MRAIDViewListener {
 	

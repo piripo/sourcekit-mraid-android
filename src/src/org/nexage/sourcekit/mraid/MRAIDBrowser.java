@@ -1,7 +1,5 @@
 package org.nexage.sourcekit.mraid;
 
-import java.util.ArrayList;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -27,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MRAIDBrowser extends Activity {
 	
@@ -114,8 +114,7 @@ public class MRAIDBrowser extends Activity {
 		buttonLayout.setPadding(0, 0, 0, 0);
         Drawable backgroundDrawable = Assets.getDrawableFromBase64(getResources(), Assets.bkgrnd);
         buttonLayout.setBackgroundDrawable(backgroundDrawable);
-		// buttonLayout.setBackgroundColor(Color.RED);
-		buttonLayout.setId(1);
+		buttonLayout.setId(View.generateViewId());
 
 		int buttonWidth = screenWidth >>> 2;
 		int buttonHeight = Math.min(buttonWidth >>> 1, screenHeight / 10);

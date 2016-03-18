@@ -1,26 +1,5 @@
 package org.nexage.sourcekit.mraid;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-
-import org.nexage.sourcekit.mraid.internal.MRAIDHtmlProcessor;
-import org.nexage.sourcekit.mraid.internal.MRAIDLog;
-import org.nexage.sourcekit.mraid.internal.MRAIDLog.LOG_LEVEL;
-import org.nexage.sourcekit.mraid.internal.MRAIDNativeFeatureManager;
-import org.nexage.sourcekit.mraid.internal.MRAIDParser;
-import org.nexage.sourcekit.mraid.properties.MRAIDOrientationProperties;
-import org.nexage.sourcekit.mraid.properties.MRAIDResizeProperties;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -58,6 +37,27 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import org.nexage.sourcekit.mraid.internal.MRAIDHtmlProcessor;
+import org.nexage.sourcekit.mraid.internal.MRAIDLog;
+import org.nexage.sourcekit.mraid.internal.MRAIDLog.LOG_LEVEL;
+import org.nexage.sourcekit.mraid.internal.MRAIDNativeFeatureManager;
+import org.nexage.sourcekit.mraid.internal.MRAIDParser;
+import org.nexage.sourcekit.mraid.properties.MRAIDOrientationProperties;
+import org.nexage.sourcekit.mraid.properties.MRAIDResizeProperties;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 public class MRAIDView extends RelativeLayout {
@@ -199,13 +199,13 @@ public class MRAIDView extends RelativeLayout {
 		maxSize = new Size();
 		screenSize = new Size();
 		
-		if (context instanceof Activity) {
+		if (this.context instanceof Activity) {
 			originalRequestedOrientation = ((Activity)context).getRequestedOrientation();
 		} else {
 			originalRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 		}
 		MRAIDLog.d(TAG, "originalRequestedOrientation " + getOrientationString(originalRequestedOrientation));
-		
+
 		// ignore scroll gestures
 		gestureDetector = new GestureDetector(getContext(), new SimpleOnGestureListener() {
             @Override
@@ -213,7 +213,7 @@ public class MRAIDView extends RelativeLayout {
                 return true;
             }
 		});
-		
+
 		handler = new Handler(Looper.getMainLooper());
 
 		mraidWebChromeClient = new MRAIDWebChromeClient();
@@ -222,7 +222,6 @@ public class MRAIDView extends RelativeLayout {
 		webView = createWebView();
 		
 		currentWebView = webView;
-//		webView.setBackgroundColor(Color.TRANSPARENT);
 
 		addView(webView);
 

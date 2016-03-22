@@ -73,7 +73,8 @@ public class MRAIDView extends RelativeLayout {
     // used to define state of the MRAID advertisement
     @IntDef({STATE_LOADING, STATE_DEFAULT, STATE_EXPANDED, STATE_RESIZED, STATE_HIDDEN})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface MRAIDState {}
+    public @interface MRAIDState {
+    }
 
     // nothing is displayed, ad is currently loading assets or making other requests
     public final static int STATE_LOADING = 0;
@@ -128,7 +129,7 @@ public class MRAIDView extends RelativeLayout {
     private final boolean isInterstitial;
 
     @MRAIDState
-    private int state;
+    protected int state;
 
     @MRAIDState
     public int getState() {
@@ -147,7 +148,7 @@ public class MRAIDView extends RelativeLayout {
     private MRAIDNativeFeatureManager nativeFeatureManager;
 
     // listeners
-    private MRAIDViewListener listener;
+    protected MRAIDViewListener listener;
     private MRAIDNativeFeatureListener nativeFeatureListener;
 
     // used for setting positions and sizes (all in pixels, not dpi)
@@ -165,7 +166,7 @@ public class MRAIDView extends RelativeLayout {
     private Size screenSize;
     // state to help set positions and sizes
     private boolean isPageFinished;
-    private boolean isLaidOut;
+    protected boolean isLaidOut;
     private boolean isForcingFullScreen;
     private boolean isExpandingFromDefault;
     private boolean isExpandingPart2;
@@ -187,7 +188,7 @@ public class MRAIDView extends RelativeLayout {
     // into webViewPart2 (2nd part of 2-part expanded ad).
     private String mraidJs;
 
-    private Handler handler;
+    protected Handler handler;
 
     public MRAIDView(
             Context context,
@@ -276,14 +277,12 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
+    @SuppressLint("SetJavaScriptEnabled")
     private WebView createWebView() {
         WebView wv = new WebView(context) {
 
             private static final String TAG = "MRAIDView-WebView";
 
-            @SuppressWarnings("deprecation")
             @Override
             protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
                 super.onLayout(changed, left, top, right, bottom);
@@ -375,8 +374,10 @@ public class MRAIDView extends RelativeLayout {
         // load all the images without asking
         wv.getSettings().setLoadsImagesAutomatically(true);
 
-        // our ads often have insecure images and stuff
-        wv.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        // our ads often have insecure images and stuff, newer android prevents loading these by default
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            wv.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
 
         // not sure why the following says "no virtual method"
         // wv.getSettings().setOffscreenPreRaster(true);
@@ -387,7 +388,7 @@ public class MRAIDView extends RelativeLayout {
         wv.setWebChromeClient(mraidWebChromeClient);
         wv.setWebViewClient(mraidWebViewClient);
 
-        if (Build.VERSION.SDK_INT >= 17) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
         }
 
@@ -420,7 +421,7 @@ public class MRAIDView extends RelativeLayout {
     public void destroy() {
         if (webView != null) {
             if (webView.getParent() != null) {
-                ((ViewGroup)webView.getParent()).removeView(webView);
+                ((ViewGroup) webView.getParent()).removeView(webView);
             }
             webView.clearHistory();
             webView.clearCache(true);
@@ -505,26 +506,6 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
-    ///////////////////////////////////////////////////////
-    // These are methods in the MRAID API.
-    ///////////////////////////////////////////////////////
-
-    private void close() {
-        MRAIDLog.d(TAG + "-JS callback", "close");
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (state == STATE_LOADING || (state == STATE_DEFAULT && !isInterstitial) || state == STATE_HIDDEN) {
-                    // do nothing
-                } else if (state == STATE_DEFAULT || state == STATE_EXPANDED) {
-                    closeFromExpanded();
-                } else if (state == STATE_RESIZED) {
-                    closeFromResized();
-                }
-            }
-        });
-    }
-
     public boolean onBackPressed() {
         if (state == STATE_LOADING || (state == STATE_DEFAULT && !isInterstitial) || state == STATE_HIDDEN) {
             return false;
@@ -533,7 +514,25 @@ public class MRAIDView extends RelativeLayout {
         return true;
     }
 
-    @SuppressWarnings("unused")
+    ///////////////////////////////////////////////////////
+    // These are methods in the MRAID API.
+    ///////////////////////////////////////////////////////
+
+    protected void close() {
+        MRAIDLog.d(TAG + "-JS callback", "close");
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (state == STATE_DEFAULT || state == STATE_EXPANDED) {
+                    closeFromExpanded();
+                } else if (state == STATE_RESIZED) {
+                    closeFromResized();
+                }
+            }
+        });
+    }
+
+    @JavascriptMRAIDCallback
     private void createCalendarEvent(String eventJSON) {
         MRAIDLog.d(TAG + "-JS callback", "createCalendarEvent " + eventJSON);
         if (nativeFeatureListener != null) {
@@ -541,23 +540,16 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
+    // Expand an ad from banner to fullscreen
     // Note: This method is also used to present an interstitial ad.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void expand(String url) {
+    protected void expand(String url) {
         MRAIDLog.d(TAG + "-JS callback", "expand " + (url != null ? url : "(1-part)"));
-
-        // The only time it is valid to call expand on a banner ad is
-        // when the ad is currently in either default or resized state.
-        // The only time it is valid to (internally) call expand on an interstitial ad is
-        // when the ad is currently in loading state.
-        if ((isInterstitial && state != STATE_LOADING) || (!isInterstitial && state != STATE_DEFAULT && state != STATE_RESIZED)) {
-            // do nothing
-            return;
-        }
 
         // 1-part expansion
         if (TextUtils.isEmpty(url)) {
-            if (isInterstitial || state == STATE_DEFAULT) {
+            if (state == STATE_LOADING || state == STATE_DEFAULT) {
+                // remove the existing webview
                 if (webView.getParent() != null) {
                     ((ViewGroup) webView.getParent()).removeView(webView);
                 } else {
@@ -573,7 +565,6 @@ public class MRAIDView extends RelativeLayout {
         // 2-part expansion
 
         // First, try to get the content of the second (expanded) part of the creative.
-
         try {
             url = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -833,30 +824,19 @@ public class MRAIDView extends RelativeLayout {
         expand(null);
     }
 
-    private void expandHelper(WebView webView) {
-        if (!isInterstitial) {
-            state = STATE_EXPANDED;
-        }
-        // If this MRAIDView is an interstitial, we'll set the state to default and
-        // fire the state change event after the view has been laid out.
+    protected void expandHelper(WebView webView) {
         applyOrientationProperties();
         forceFullScreen();
-        expandedView = new RelativeLayout(context);
 
-        // Ok in this case we want to expand to the full screen, so no need for the banner ad size.
+        expandedView = new RelativeLayout(context);
         expandedView.addView(webView, new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
         addCloseRegion(expandedView);
         setCloseRegionPosition(expandedView);
-        ((Activity) context).addContentView(expandedView,
-                new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+        ((Activity) context).addContentView(expandedView, new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
         isExpandingFromDefault = true;
-        if (isInterstitial) {
-            isLaidOut = true;
-            state = STATE_DEFAULT;
-            this.fireStateChangeEvent();
-        } else {
-            this.fireStateChangeEvent();
-        }
     }
 
     private void setResizedViewSize() {
@@ -899,26 +879,16 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
-    private void closeFromExpanded() {
-        if (state == STATE_DEFAULT && isInterstitial) {
-            state = STATE_HIDDEN;
-            clearView();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    fireStateChangeEvent();
-                    if (listener != null) {
-                        listener.mraidViewClose(MRAIDView.this);
-                    }
-                }
-            });
-        } else if (state == STATE_EXPANDED || state == STATE_RESIZED) {
+    protected void closeFromExpanded() {
+        if (state == STATE_EXPANDED || state == STATE_RESIZED) {
             state = STATE_DEFAULT;
         }
+
         isClosing = true;
 
         expandedView.removeAllViews();
 
+        // get the content view for the current context
         FrameLayout rootView = (FrameLayout) ((Activity) context).findViewById(android.R.id.content);
         rootView.removeView(expandedView);
         expandedView = null;
@@ -957,7 +927,7 @@ public class MRAIDView extends RelativeLayout {
         });
     }
 
-    private void closeFromResized() {
+    protected void closeFromResized() {
         state = STATE_DEFAULT;
         isClosing = true;
         removeResizeView();
@@ -1214,7 +1184,7 @@ public class MRAIDView extends RelativeLayout {
     // of for us in the mraid.setCurrentPosition method in mraid.js.
 
     @SuppressLint("DefaultLocale")
-    private void fireStateChangeEvent() {
+    protected void fireStateChangeEvent() {
         MRAIDLog.d(TAG, "fireStateChangeEvent");
         String[] stateArray = {"loading", "default", "expanded", "resized", "hidden"};
         injectJavaScript("mraid.fireStateChangeEvent('" + stateArray[state] + "');");

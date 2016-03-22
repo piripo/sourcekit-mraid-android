@@ -2,6 +2,7 @@ package org.nexage.sourcekit.mraid;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.webkit.WebView;
 
 @SuppressLint("ViewConstructor")
 public class MRAIDInterstitial extends MRAIDView {
@@ -18,8 +19,50 @@ public class MRAIDInterstitial extends MRAIDView {
     ) {
 		super(context, baseUrl, data, supportedNativeFeatures, viewListener, nativeFeatureListener, true);
 	}
-	
-	public void show() {
+
+    @Override
+    protected void close() {
+        super.close();
+    }
+
+    @Override
+    protected void expand(String url) {
+        // only expand interstitials from loading state
+        if (state != STATE_LOADING) {
+            return;
+        }
+
+        super.expand(url);
+    }
+
+    @Override
+    protected void expandHelper(WebView webView) {
+        super.expandHelper(webView);
+        isLaidOut = true;
+        state = STATE_DEFAULT;
+        this.fireStateChangeEvent();
+    }
+
+    @Override
+    protected void closeFromExpanded() {
+        if (state == STATE_DEFAULT) {
+            state = STATE_HIDDEN;
+            clearView();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    fireStateChangeEvent();
+                    if (listener != null) {
+                        listener.mraidViewClose(MRAIDInterstitial.this);
+                    }
+                }
+            });
+        }
+
+        super.closeFromExpanded();
+    }
+
+    public void show() {
 		this.showAsInterstitial();
 	}
 }

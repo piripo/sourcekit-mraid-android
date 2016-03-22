@@ -27,7 +27,7 @@ public class MRAIDLog {
 
 	}
 	
-	private static LOG_LEVEL LEVEL = LOG_LEVEL.error;
+	private static LOG_LEVEL LEVEL = LOG_LEVEL.verbose;
 
 	public static void d(String msg) {
 		if (LEVEL.getValue() <= LOG_LEVEL.debug.getValue()) {

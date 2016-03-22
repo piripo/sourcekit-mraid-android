@@ -2,6 +2,8 @@ package org.nexage.sourcekit.mraid;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 
 /**
@@ -22,6 +24,8 @@ public class MRAIDBanner extends MRAIDView {
             MRAIDNativeFeatureListener nativeFeatureListener
     ) {
         super(context, baseUrl, data, supportedNativeFeatures, viewListener, nativeFeatureListener, false);
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        addView(webView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 
     @Override

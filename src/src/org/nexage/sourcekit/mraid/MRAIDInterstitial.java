@@ -2,23 +2,26 @@ package org.nexage.sourcekit.mraid;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.webkit.WebView;
 
 @SuppressLint("ViewConstructor")
 public class MRAIDInterstitial extends MRAIDView {
-	
-	private final static String TAG = "MRAIDInterstitial";
-	
-	public MRAIDInterstitial(
-        Context context,
-        String baseUrl,
-        String data,
-        String[] supportedNativeFeatures,
-		MRAIDViewListener viewListener,
-        MRAIDNativeFeatureListener nativeFeatureListener
+
+    private final static String TAG = "MRAIDInterstitial";
+
+    public MRAIDInterstitial(
+            Context context,
+            String baseUrl,
+            String data,
+            String[] supportedNativeFeatures,
+            MRAIDViewListener viewListener,
+            MRAIDNativeFeatureListener nativeFeatureListener
     ) {
-		super(context, baseUrl, data, supportedNativeFeatures, viewListener, nativeFeatureListener, true);
-	}
+        super(context, baseUrl, data, supportedNativeFeatures, viewListener, nativeFeatureListener, true);
+        webView.setBackgroundColor(Color.BLACK);
+        addView(webView);
+    }
 
     @Override
     protected void close() {
@@ -63,6 +66,6 @@ public class MRAIDInterstitial extends MRAIDView {
     }
 
     public void show() {
-		this.showAsInterstitial();
-	}
+        this.showAsInterstitial();
+    }
 }

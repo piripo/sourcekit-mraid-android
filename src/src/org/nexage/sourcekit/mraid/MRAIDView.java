@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -97,7 +98,7 @@ public class MRAIDView extends RelativeLayout {
     // UI elements
 
     // main WebView stores ad in default state
-    private WebView webView;
+    protected WebView webView;
 
     // some ads have a second part that loads independently?
     private WebView webViewPart2;
@@ -136,6 +137,7 @@ public class MRAIDView extends RelativeLayout {
         return state;
     }
 
+    // not sure why we keep this separately from the actual view state?
     private boolean isViewable;
 
     // The only property of the MRAID expandProperties we need to keep track of
@@ -244,18 +246,6 @@ public class MRAIDView extends RelativeLayout {
         webView = createWebView();
 
         currentWebView = webView;
-
-        if (this.isInterstitial) {
-            webView.setBackgroundColor(Color.BLACK);
-        } else {
-            webView.setBackgroundColor(Color.TRANSPARENT);
-        }
-
-        if (this.isInterstitial) {
-            addView(webView);
-        } else {
-            addView(webView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        }
 
         injectMraidJs(webView);
 
@@ -419,17 +409,23 @@ public class MRAIDView extends RelativeLayout {
     }
 
     public void destroy() {
-        if (webView != null) {
-            if (webView.getParent() != null) {
-                ((ViewGroup) webView.getParent()).removeView(webView);
+        destroyWebView(webView);
+        destroyWebView(webViewPart2);
+        destroyWebView(currentWebView);
+    }
+
+    private void destroyWebView(WebView wv) {
+        if (wv != null) {
+            if (wv.getParent() != null) {
+                ((ViewGroup) wv.getParent()).removeView(wv);
             }
-            webView.clearHistory();
-            webView.clearCache(true);
-            webView.loadUrl("about:blank");
-            webView.pauseTimers();
-            webView.setWebChromeClient(null);
-            webView.setWebViewClient(null);
-            webView = null;
+            wv.clearHistory();
+            wv.clearCache(true);
+            wv.loadUrl("about:blank");
+            wv.pauseTimers();
+            wv.setWebChromeClient(null);
+            wv.setWebViewClient(null);
+            wv.destroy();
         }
     }
 
@@ -1393,7 +1389,7 @@ public class MRAIDView extends RelativeLayout {
     }
 
     @Override
-    protected void onVisibilityChanged(View changedView, int visibility) {
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         MRAIDLog.d(TAG, "onVisibilityChanged " + getVisibilityString(visibility));
         setViewable(visibility);

@@ -29,6 +29,11 @@ public class MRAIDBanner extends MRAIDView {
     }
 
     @Override
+    public boolean onBackPressed() {
+        return state != STATE_DEFAULT && super.onBackPressed();
+    }
+
+    @Override
     protected void close() {
         if (state == STATE_LOADING || state == STATE_DEFAULT || state == STATE_HIDDEN) {
             return;

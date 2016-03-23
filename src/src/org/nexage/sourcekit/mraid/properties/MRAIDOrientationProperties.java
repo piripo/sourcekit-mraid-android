@@ -9,7 +9,10 @@ public final class MRAIDOrientationProperties {
 	public static final int FORCE_ORIENTATION_LANDSCAPE = 1;
 	public static final int FORCE_ORIENTATION_NONE = 2;
 
+    // whether or not the ad orientation changes when the device orientation changes
 	public boolean allowOrientationChange;
+
+    // what orientation the ad should be displayed in regardless of allowOrientationChange or actual device orientation
 	public int forceOrientation;
 
     public MRAIDOrientationProperties() {

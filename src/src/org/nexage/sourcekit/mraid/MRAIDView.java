@@ -502,8 +502,9 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
+    // delegate onBackPressed behavior depending on MRAID type
     public boolean onBackPressed() {
-        if (state == STATE_LOADING || (state == STATE_DEFAULT && !isInterstitial) || state == STATE_HIDDEN) {
+        if (state == STATE_LOADING || state == STATE_HIDDEN) {
             return false;
         }
         close();
@@ -514,6 +515,7 @@ public class MRAIDView extends RelativeLayout {
     // These are methods in the MRAID API.
     ///////////////////////////////////////////////////////
 
+    @JavascriptMRAIDCallback
     protected void close() {
         MRAIDLog.d(TAG + "-JS callback", "close");
         handler.post(new Runnable() {
@@ -539,6 +541,7 @@ public class MRAIDView extends RelativeLayout {
     // Expand an ad from banner to fullscreen
     // Note: This method is also used to present an interstitial ad.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @JavascriptMRAIDCallback
     protected void expand(String url) {
         MRAIDLog.d(TAG + "-JS callback", "expand " + (url != null ? url : "(1-part)"));
 
@@ -606,6 +609,7 @@ public class MRAIDView extends RelativeLayout {
         }, "2-part-content")).start();
     }
 
+    @JavascriptMRAIDCallback
     private void open(String url) {
         try {
             url = URLDecoder.decode(url, "UTF-8");
@@ -624,7 +628,7 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
-    @SuppressWarnings("unused")
+    @JavascriptMRAIDCallback
     private void playVideo(String url) {
         try {
             url = URLDecoder.decode(url, "UTF-8");
@@ -637,7 +641,7 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
-    @SuppressWarnings("unused")
+    @JavascriptMRAIDCallback
     private void resize() {
         MRAIDLog.d(TAG + "-JS callback", "resize");
 
@@ -673,25 +677,24 @@ public class MRAIDView extends RelativeLayout {
         });
     }
 
-    @SuppressWarnings("unused")
-    private void setOrientationProperties(Map<String, String> properties) {
+    @JavascriptMRAIDCallback
+    protected void setOrientationProperties(Map<String, String> properties) {
         boolean allowOrientationChange = Boolean.parseBoolean(properties.get("allowOrientationChange"));
         String forceOrientation = properties.get("forceOrientation");
+
         MRAIDLog.d(TAG + "-JS callback", "setOrientationProperties "
                 + allowOrientationChange + " " + forceOrientation);
-        if (orientationProperties.allowOrientationChange != allowOrientationChange ||
-                orientationProperties.forceOrientation !=
-                        MRAIDOrientationProperties.forceOrientationFromString(forceOrientation)) {
-            orientationProperties.allowOrientationChange = allowOrientationChange;
-            orientationProperties.forceOrientation =
-                    MRAIDOrientationProperties.forceOrientationFromString(forceOrientation);
-            if (isInterstitial || state == STATE_EXPANDED) {
-                applyOrientationProperties();
-            }
+
+        orientationProperties.allowOrientationChange = allowOrientationChange;
+        orientationProperties.forceOrientation = MRAIDOrientationProperties.forceOrientationFromString(forceOrientation);
+
+        // only interstitials and expanded banners may change orientation
+        if (this instanceof MRAIDInterstitial || state == STATE_EXPANDED) {
+            applyOrientationProperties();
         }
     }
 
-    @SuppressWarnings("unused")
+    @JavascriptMRAIDCallback
     private void setResizeProperties(Map<String, String> properties) {
         int width = Integer.parseInt(properties.get("width"));
         int height = Integer.parseInt(properties.get("height"));
@@ -712,7 +715,7 @@ public class MRAIDView extends RelativeLayout {
         resizeProperties.allowOffscreen = allowOffscreen;
     }
 
-    @SuppressWarnings("unused")
+    @JavascriptMRAIDCallback
     private void storePicture(String url) {
         try {
             url = URLDecoder.decode(url, "UTF-8");
@@ -725,7 +728,7 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
-    @SuppressWarnings("unused")
+    @JavascriptMRAIDCallback
     private void useCustomClose(String useCustomCloseString) {
         MRAIDLog.d(TAG + "-JS callback", "useCustomClose " + useCustomCloseString);
         boolean useCustomClose = Boolean.parseBoolean(useCustomCloseString);
@@ -1597,7 +1600,7 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
-    private void applyOrientationProperties() {
+    protected void applyOrientationProperties() {
         MRAIDLog.d(TAG, "applyOrientationProperties " +
                 orientationProperties.allowOrientationChange + " " + orientationProperties.forceOrientationString());
 

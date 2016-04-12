@@ -43,7 +43,6 @@ import android.widget.RelativeLayout;
 
 import org.nexage.sourcekit.mraid.internal.MRAIDHtmlProcessor;
 import org.nexage.sourcekit.mraid.internal.MRAIDLog;
-import org.nexage.sourcekit.mraid.internal.MRAIDLog.LOG_LEVEL;
 import org.nexage.sourcekit.mraid.internal.MRAIDNativeFeatureManager;
 import org.nexage.sourcekit.mraid.internal.MRAIDParser;
 import org.nexage.sourcekit.mraid.properties.MRAIDOrientationProperties;
@@ -68,9 +67,6 @@ public class MRAIDView extends RelativeLayout {
 
     // used to differentiate logging
     private static final String MRAID_LOG_TAG = "MRAIDView";
-
-    // library version
-    public static final String VERSION = "1.1.1";
 
     // used to define state of the MRAID advertisement
     @IntDef({STATE_LOADING, STATE_DEFAULT, STATE_EXPANDED, STATE_RESIZED, STATE_HIDDEN})
@@ -250,22 +246,27 @@ public class MRAIDView extends RelativeLayout {
 
         injectMraidJs(webView);
 
-        data = MRAIDHtmlProcessor.processRawHtml(data);
-        webView.loadDataWithBaseURL(baseUrl, data, "text/html", "UTF-8", null);
-        MRAIDLog.d("log level = " + MRAIDLog.getLoggingLevel());
-        if (MRAIDLog.getLoggingLevel() == LOG_LEVEL.verbose) {
-            injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum.DEBUG;");
-        } else if (MRAIDLog.getLoggingLevel() == LOG_LEVEL.debug) {
-            injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum.DEBUG;");
-        } else if (MRAIDLog.getLoggingLevel() == LOG_LEVEL.info) {
-            injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum.INFO;");
-        } else if (MRAIDLog.getLoggingLevel() == LOG_LEVEL.warning) {
-            injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum.WARNING;");
-        } else if (MRAIDLog.getLoggingLevel() == LOG_LEVEL.error) {
-            injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum.ERROR;");
-        } else if (MRAIDLog.getLoggingLevel() == LOG_LEVEL.none) {
-            injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum.NONE;");
+        webView.loadDataWithBaseURL(baseUrl, MRAIDHtmlProcessor.processRawHtml(data), "text/html", "UTF-8", null);
+
+        String jsLogLevel = "NONE";
+        switch (MRAIDLog.getLoggingLevel()) {
+            case verbose:
+            case debug:
+                jsLogLevel = "DEBUG";
+                break;
+            case info:
+                jsLogLevel = "INFO";
+                break;
+            case warning:
+                jsLogLevel = "WARNING";
+                break;
+            case error:
+                jsLogLevel = "ERROR";
+                break;
+            case none:
+                break;
         }
+        injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum." + jsLogLevel + ";");
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -411,10 +412,12 @@ public class MRAIDView extends RelativeLayout {
 
     public void destroy() {
         if (webView != null) {
+            MRAIDLog.i("Destroying Main WebView");
             destroyWebView(webView);
         }
 
         if (webViewPart2 != null) {
+            MRAIDLog.i("Destroying Secondary WebView");
             destroyWebView(webViewPart2);
         }
     }
@@ -1129,7 +1132,6 @@ public class MRAIDView extends RelativeLayout {
      * code.
      **************************************************************************/
 
-    @SuppressLint("NewApi")
     private void injectMraidJs(final WebView wv) {
         if (TextUtils.isEmpty(mraidJs)) {
             String str = Assets.mraidJS;
@@ -1137,34 +1139,21 @@ public class MRAIDView extends RelativeLayout {
             mraidJs = new String(mraidjsBytes);
         }
 
-        MRAIDLog.d(MRAID_LOG_TAG, "injectMraidJs ok " + mraidJs.length());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            wv.loadData("<html></html>", "text/html", "UTF-8");
-            wv.evaluateJavascript(mraidJs, new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-
-                }
-            });
-        } else {
-            wv.loadUrl("javascript:" + mraidJs);
-        }
+        injectJavaScript(mraidJs);
     }
 
-    @SuppressLint("NewApi")
     private void injectJavaScript(String js) {
         injectJavaScript(currentWebView, js);
     }
 
-    @SuppressLint("NewApi")
-    private void injectJavaScript(WebView webView, String js) {
+    private static void injectJavaScript(WebView webView, String js) {
         if (!TextUtils.isEmpty(js)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 MRAIDLog.d(MRAID_LOG_TAG, "evaluating js: " + js);
                 webView.evaluateJavascript(js, new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
-                        MRAIDLog.d("Evaluated JS" + value);
+                        MRAIDLog.d("Evaluated JS: " + value);
                     }
                 });
 
@@ -1410,7 +1399,7 @@ public class MRAIDView extends RelativeLayout {
     }
 
     private void setViewable(int visibility) {
-        boolean isCurrentlyViewable = (visibility == View.VISIBLE);
+        boolean isCurrentlyViewable = visibility == View.VISIBLE;
         if (isCurrentlyViewable != isViewable) {
             isViewable = isCurrentlyViewable;
             if (isPageFinished && isLaidOut) {

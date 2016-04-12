@@ -15,28 +15,26 @@ public class MRAIDHtmlProcessor {
         // like this:
         // <script type = 'text/javascript' src = 'mraid.js' > </script>
 
-        String regex;
-        Pattern pattern;
-        Matcher matcher;
-
         // Remove the mraid.js script tag.
-        regex = "<script\\s+[^>]*\\bsrc\\s*=\\s*([\\\"\\\'])mraid\\.js\\1[^>]*>\\s*</script>\\n*";
-        pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-        matcher = pattern.matcher(processedHtml);
+        String regex = "<script\\s+[^>]*\\bsrc\\s*=\\s*([\\\"\\\'])mraid\\.js\\1[^>]*>\\s*</script>\\n*";
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(processedHtml);
         if (matcher.find()) {
             processedHtml.delete(matcher.start(), matcher.end());
         }
 
         // Add html, head, and/or body tags as needed.
-        boolean hasHtmlTag = (rawHtml.indexOf("<html") != -1);
-        boolean hasHeadTag = (rawHtml.indexOf("<head") != -1);
-        boolean hasBodyTag = (rawHtml.indexOf("<body") != -1);
+        boolean hasHtmlTag = rawHtml.contains("<html");
+        boolean hasHeadTag = rawHtml.contains("<head");
+        boolean hasBodyTag = rawHtml.contains("<body");
 
         // basic sanity checks
+        // if the html has no <html> tag but has a head or body it's invalid
+        // if the html has an <html> tag but no <body> tag it's invalid
         if ((!hasHtmlTag && (hasHeadTag || hasBodyTag)) || (hasHtmlTag && !hasBodyTag)) {
             return null;
         }
-        
+
         String ls = System.getProperty("line.separator");
 
         if (!hasHtmlTag) {
@@ -55,22 +53,18 @@ public class MRAIDHtmlProcessor {
         }
 
         // Add meta and style tags to head tag.
-        String metaTag =
-                "<meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no' />";
-
-        String styleTag =
-                "<style>" + ls +
-                "body { margin:0; padding:0;}" + ls +
-                "*:not(input) { -webkit-touch-callout:none; -webkit-user-select:none; -webkit-text-size-adjust:none; }" + ls +
-                "</style>";
-
         regex = "<head[^>]*>";
         pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         matcher = pattern.matcher(processedHtml);
         int idx = 0;
-        while (matcher.find(idx)) {
+        if (matcher.find(idx)) {
+            String metaTag = "<meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no' />";
+            String styleTag =
+                    "<style>" + ls +
+                            "body { margin:0; padding:0;}" + ls +
+                            "*:not(input) { -webkit-touch-callout:none; -webkit-user-select:none; -webkit-text-size-adjust:none; }" + ls +
+                            "</style>";
             processedHtml.insert(matcher.end(), ls + metaTag + ls + styleTag);
-            idx = matcher.end();
         }
 
         return processedHtml.toString();

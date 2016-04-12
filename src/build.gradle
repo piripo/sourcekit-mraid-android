@@ -5,13 +5,13 @@ buildscript {
         repositories {
             jcenter()
         }
-        classpath 'com.android.tools.build:gradle:2.1.0-alpha1'
+        classpath 'com.android.tools.build:gradle:2.0.0'
     }
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '23.0.3'
 
     sourceSets {
         main {
@@ -43,5 +43,6 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-v4:23.1.+"
+    //noinspection GradleDependency,GradleDynamicVersion
+    compile "com.android.support:support-v4:23.+"
 }

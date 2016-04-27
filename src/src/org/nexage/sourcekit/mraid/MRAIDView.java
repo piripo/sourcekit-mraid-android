@@ -92,6 +92,25 @@ public class MRAIDView extends RelativeLayout {
     // default size of close region in dip
     private static final int CLOSE_REGION_SIZE = 50;
 
+    private static final String[] COMMANDS_WITH_NO_PARAM = {
+            "close",
+            "resize",
+    };
+
+    private static final String[] COMMANDS_WITH_STRING = {
+            "createCalendarEvent",
+            "expand",
+            "open",
+            "playVideo",
+            "storePicture",
+            "useCustomClose",
+    };
+
+    private static final String[] COMMANDS_WITH_MAP = {
+            "setOrientationProperties",
+            "setResizeProperties",
+    };
+
     // UI elements
 
     // main WebView stores ad in default state
@@ -304,7 +323,7 @@ public class MRAIDView extends RelativeLayout {
                 super.onWindowVisibilityChanged(visibility);
                 int actualVisibility = getVisibility();
                 MRAIDLog.d(TAG, "onWindowVisibilityChanged " + getVisibilityString(visibility) +
-                        " (actual " + getVisibilityString(actualVisibility) + ")");
+                        " (actual " + getVisibilityString(actualVisibility) + ')');
                 if (isInterstitial) {
                     setViewable(actualVisibility);
                 }
@@ -322,7 +341,7 @@ public class MRAIDView extends RelativeLayout {
         wv.setHorizontalScrollBarEnabled(false);
 
         // make sure those scroll bars are gone
-        wv.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        wv.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
 
         // i think we want to be able to focus but i dont know?
         wv.setFocusableInTouchMode(true);
@@ -335,7 +354,6 @@ public class MRAIDView extends RelativeLayout {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_UP:
-                        // isTouched = true;
                         if (!v.hasFocus()) {
                             v.requestFocus();
                         }
@@ -360,8 +378,8 @@ public class MRAIDView extends RelativeLayout {
         // don't use the zoom control gestures
         wv.getSettings().setBuiltInZoomControls(false);
 
-        // use the wide viewport i think, maybe we don't want this?
-        wv.getSettings().setUseWideViewPort(true);
+        // constrains the contents of banner to be within the webview, viewport is the size of the webview
+        wv.getSettings().setUseWideViewPort(false);
 
         // load all the images without asking
         wv.getSettings().setLoadsImagesAutomatically(true);
@@ -385,7 +403,7 @@ public class MRAIDView extends RelativeLayout {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (0 != (context.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE)) {
+            if ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
                 WebView.setWebContentsDebuggingEnabled(true);
             }
         }
@@ -445,7 +463,7 @@ public class MRAIDView extends RelativeLayout {
      **************************************************************************/
 
     // This is the entry point to all the "actual" MRAID methods below.
-    private void parseCommandUrl(String commandUrl) {
+    private static void parseCommandUrl(String commandUrl) {
         MRAIDLog.d(MRAID_LOG_TAG, "parseCommandUrl " + commandUrl);
 
         MRAIDParser parser = new MRAIDParser();
@@ -453,33 +471,15 @@ public class MRAIDView extends RelativeLayout {
 
         String command = commandMap.get("command");
 
-        final String[] commandsWithNoParam = {
-                "close",
-                "resize",
-        };
-
-        final String[] commandsWithString = {
-                "createCalendarEvent",
-                "expand",
-                "open",
-                "playVideo",
-                "storePicture",
-                "useCustomClose",
-        };
-
-        final String[] commandsWithMap = {
-                "setOrientationProperties",
-                "setResizeProperties",
-        };
 
         try {
-            if (Arrays.asList(commandsWithNoParam).contains(command)) {
+            if (Arrays.asList(COMMANDS_WITH_NO_PARAM).contains(command)) {
                 try {
                     getClass().getDeclaredMethod(command).invoke(this);
                 } catch (NoSuchMethodException e) {
                     getClass().getSuperclass().getDeclaredMethod(command).invoke(this);
                 }
-            } else if (Arrays.asList(commandsWithString).contains(command)) {
+            } else if (Arrays.asList(COMMANDS_WITH_STRING).contains(command)) {
                 String key;
                 switch (command) {
                     case "createCalendarEvent":
@@ -498,7 +498,7 @@ public class MRAIDView extends RelativeLayout {
                 } catch (NoSuchMethodException e) {
                     getClass().getSuperclass().getDeclaredMethod(command, String.class).invoke(this, val);
                 }
-            } else if (Arrays.asList(commandsWithMap).contains(command)) {
+            } else if (Arrays.asList(COMMANDS_WITH_MAP).contains(command)) {
                 try {
                     getClass().getDeclaredMethod(command, Map.class).invoke(this, commandMap);
                 } catch (NoSuchMethodException e) {

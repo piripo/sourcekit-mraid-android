@@ -13,7 +13,7 @@ import android.webkit.WebView;
 @SuppressLint("ViewConstructor")
 public class MRAIDBanner extends MRAIDView {
 
-    private final static String TAG = "MRAIDBanner";
+    private static final String TAG = "MRAIDBanner";
 
     public MRAIDBanner(
             Context context,
@@ -57,5 +57,17 @@ public class MRAIDBanner extends MRAIDView {
         state = STATE_EXPANDED;
         super.expandHelper(webView);
         this.fireStateChangeEvent();
+    }
+
+    @Override
+    protected void onLayoutCompleted() {
+        if (state == STATE_LOADING && isPageFinished) {
+            state = STATE_DEFAULT;
+            fireStateChangeEvent();
+            fireReadyEvent();
+            if (isViewable) {
+                fireViewableChangeEvent();
+            }
+        }
     }
 }

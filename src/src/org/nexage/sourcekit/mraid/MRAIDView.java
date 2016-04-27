@@ -154,7 +154,7 @@ public class MRAIDView extends RelativeLayout {
     }
 
     // not sure why we keep this separately from the actual view state?
-    private boolean isViewable;
+    protected boolean isViewable;
 
     // The only property of the MRAID expandProperties we need to keep track of
     // on the native side is the useCustomClose property.
@@ -183,7 +183,7 @@ public class MRAIDView extends RelativeLayout {
     private Size maxSize;
     private Size screenSize;
     // state to help set positions and sizes
-    private boolean isPageFinished;
+    protected boolean isPageFinished;
     protected boolean isLaidOut;
     private boolean isForcingFullScreen;
     private boolean isExpandingFromDefault;
@@ -463,7 +463,7 @@ public class MRAIDView extends RelativeLayout {
      **************************************************************************/
 
     // This is the entry point to all the "actual" MRAID methods below.
-    private static void parseCommandUrl(String commandUrl) {
+    private void parseCommandUrl(String commandUrl) {
         MRAIDLog.d(MRAID_LOG_TAG, "parseCommandUrl " + commandUrl);
 
         MRAIDParser parser = new MRAIDParser();
@@ -1165,7 +1165,7 @@ public class MRAIDView extends RelativeLayout {
     }
 
     // convenience methods
-    private void fireReadyEvent() {
+    protected void fireReadyEvent() {
         MRAIDLog.d(MRAID_LOG_TAG, "fireReadyEvent");
         injectJavaScript("mraid.fireReadyEvent();");
     }
@@ -1180,7 +1180,7 @@ public class MRAIDView extends RelativeLayout {
         injectJavaScript("mraid.fireStateChangeEvent('" + stateArray[state] + "');");
     }
 
-    private void fireViewableChangeEvent() {
+    protected void fireViewableChangeEvent() {
         MRAIDLog.d(MRAID_LOG_TAG, "fireViewableChangeEvent");
         injectJavaScript("mraid.fireViewableChangeEvent(" + isViewable + ");");
     }
@@ -1438,14 +1438,10 @@ public class MRAIDView extends RelativeLayout {
             });
         }
         isLaidOut = true;
-        if (state == STATE_LOADING && isPageFinished && !isInterstitial) {
-            state = STATE_DEFAULT;
-            fireStateChangeEvent();
-            fireReadyEvent();
-            if (isViewable) {
-                fireViewableChangeEvent();
-            }
-        }
+        onLayoutCompleted();
+    }
+
+    protected void onLayoutCompleted() {
     }
 
     private void onLayoutWebView(WebView wv, boolean changed, int left, int top, int right, int bottom) {

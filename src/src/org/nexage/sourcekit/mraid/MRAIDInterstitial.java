@@ -1,72 +1,71 @@
 package org.nexage.sourcekit.mraid;
 
-import org.nexage.sourcekit.mraid.internal.MRAIDLog;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
+import android.graphics.Color;
+import android.webkit.WebView;
 
-public class MRAIDInterstitial implements MRAIDViewListener {
-	
-	private final static String TAG = "MRAIDInterstitial";
-	
-	private MRAIDInterstitialListener listener;
-	
-	private MRAIDView mraidView;
-	private boolean isReady;
-	
-	public MRAIDInterstitial(
-        Context context,
-        String baseUrl,
-        String data,
-        String[] supportedNativeFeatures,
-        MRAIDInterstitialListener listener,
-        MRAIDNativeFeatureListener nativeFeatureListener) {
-		
-		this.listener = listener;
-		
-		mraidView = new MRAIDView(context, baseUrl, data, supportedNativeFeatures, this, nativeFeatureListener, true); 
-	}
-	
-	public void show() {
-		if (!isReady) {
-			MRAIDLog.w(TAG, "interstitial is not ready to show");
-			return;
-		}
-		mraidView.showAsInterstitial();
-	}
-	
-	// MRAIDViewListener implementation
+@SuppressLint("ViewConstructor")
+public class MRAIDInterstitial extends MRAIDView {
 
-	@Override
-	public void mraidViewLoaded(MRAIDView mraidView) {
-        Log.d(TAG + "-MRAIDViewListener", "mraidViewLoaded");
-        isReady = true;
-        if (listener != null) {
-        	listener.mraidInterstitialLoaded(this);
+    private final static String TAG = "MRAIDInterstitial";
+
+    public MRAIDInterstitial(
+            Context context,
+            String baseUrl,
+            String data,
+            String[] supportedNativeFeatures,
+            MRAIDViewListener viewListener,
+            MRAIDNativeFeatureListener nativeFeatureListener
+    ) {
+        super(context, baseUrl, data, supportedNativeFeatures, viewListener, nativeFeatureListener, true);
+        webView.setBackgroundColor(Color.BLACK);
+        addView(webView);
+    }
+
+    @Override
+    protected void close() {
+        super.close();
+    }
+
+    @Override
+    protected void expand(String url) {
+        // only expand interstitials from loading state
+        if (state != STATE_LOADING) {
+            return;
         }
-	}
 
-	@Override
-	public void mraidViewExpand(MRAIDView mraidView) {
-        Log.d(TAG + "-MRAIDViewListener", "mraidViewExpand");
-        if (listener != null) {
-        	listener.mraidInterstitialShow(this);
+        super.expand(url);
+    }
+
+    @Override
+    protected void expandHelper(WebView webView) {
+        super.expandHelper(webView);
+        isLaidOut = true;
+        state = STATE_DEFAULT;
+        this.fireStateChangeEvent();
+    }
+
+    @Override
+    protected void closeFromExpanded() {
+        if (state == STATE_DEFAULT) {
+            state = STATE_HIDDEN;
+            clearView();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    fireStateChangeEvent();
+                    if (listener != null) {
+                        listener.mraidViewClose(MRAIDInterstitial.this);
+                    }
+                }
+            });
         }
-	}
 
-	@Override
-	public void mraidViewClose(MRAIDView mraidView) {
-        Log.d(TAG + "-MRAIDViewListener", "mraidViewClose");
-		isReady = false;
-		mraidView = null;
-        if (listener != null) {
-        	listener.mraidInterstitialHide(this);
-        }
-	}
+        super.closeFromExpanded();
+    }
 
-	@Override
-	public boolean mraidViewResize(MRAIDView mraidView, int width, int height, int offsetX, int offsetY) {
-		return true;
-	}
-	
+    public void show() {
+        this.showAsInterstitial();
+    }
 }

@@ -1509,20 +1509,21 @@ public class MRAIDView extends RelativeLayout {
     }
 
     private void calculateMaxSize() {
-        int width, height;
         Rect frame = new Rect();
+
         Window window = ((Activity) context).getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(frame);
-        MRAIDLog.d(MRAID_LOG_TAG, "calculateMaxSize frame [" + frame.left + "," + frame.top + "][" + frame.right + "," + frame.bottom + "] (" +
-                frame.width() + "x" + frame.height() + ")");
-        int statusHeight = frame.top;
+
+        MRAIDLog.d(MRAID_LOG_TAG, "calculateMaxSize frame [" + frame.left + "," + frame.top + "][" + frame.right + "," + frame.bottom + "] (" + frame.width() + "x" + frame.height() + ")");
+
         contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        int statusHeight = frame.top;
         int titleHeight = contentViewTop - statusHeight;
         MRAIDLog.d(MRAID_LOG_TAG, "calculateMaxSize statusHeight " + statusHeight);
         MRAIDLog.d(MRAID_LOG_TAG, "calculateMaxSize titleHeight " + titleHeight);
         MRAIDLog.d(MRAID_LOG_TAG, "calculateMaxSize contentViewTop " + contentViewTop);
-        width = frame.width();
-        height = screenSize.height - contentViewTop;
+        int width = frame.width();
+        int height = screenSize.height - contentViewTop;
         MRAIDLog.d(MRAID_LOG_TAG, "calculateMaxSize max size " + width + "x" + height);
         if (width != maxSize.width || height != maxSize.height) {
             maxSize.width = width;
@@ -1534,21 +1535,22 @@ public class MRAIDView extends RelativeLayout {
     }
 
     private void calculatePosition(boolean isCurrentWebView) {
-        int x, y, width, height;
-        int[] location = new int[2];
 
         View view = isCurrentWebView ? currentWebView : this;
         String name = (isCurrentWebView ? "current" : "default");
 
         // This is the default location regardless of the state of the MRAIDView.
+        int[] location = new int[2];
         view.getLocationOnScreen(location);
-        x = location[0];
-        y = location[1];
+        int x = location[0];
+        int y = location[1];
+
         MRAIDLog.d(MRAID_LOG_TAG, "calculatePosition " + name + " locationOnScreen [" + x + "," + y + "]");
         MRAIDLog.d(MRAID_LOG_TAG, "calculatePosition " + name + " contentViewTop " + contentViewTop);
+
         y -= contentViewTop;
-        width = view.getWidth();
-        height = view.getHeight();
+        int width = view.getWidth();
+        int height = view.getHeight();
 
         MRAIDLog.d(MRAID_LOG_TAG, "calculatePosition " + name + " position [" + x + "," + y + "] (" + width + "x" + height + ")");
 
@@ -1560,6 +1562,7 @@ public class MRAIDView extends RelativeLayout {
             } else {
                 defaultPosition = new Rect(x, y, x + width, y + height);
             }
+
             if (isPageFinished) {
                 if (isCurrentWebView) {
                     setCurrentPosition();

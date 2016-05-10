@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -25,7 +26,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewManager;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
@@ -120,6 +120,7 @@ public class MRAIDView extends RelativeLayout {
     private WebView webViewPart2;
 
     // reference to the webview currently being presented to the user
+    @Nullable
     private WebView currentWebView;
 
 
@@ -263,9 +264,9 @@ public class MRAIDView extends RelativeLayout {
 
         currentWebView = webView;
 
-        injectMraidJs(webView);
-
         webView.loadDataWithBaseURL(baseUrl, MRAIDHtmlProcessor.processRawHtml(data), "text/html", "UTF-8", null);
+
+        injectMraidJs(webView);
 
         String jsLogLevel = "NONE";
         switch (MRAIDLog.getLoggingLevel()) {
@@ -328,7 +329,8 @@ public class MRAIDView extends RelativeLayout {
                     setViewable(actualVisibility);
                 }
                 if (visibility != View.VISIBLE) {
-                    pauseWebView(this);
+                    // FIXME: is called when view is removed and WebView is destroyed already
+                    //pauseWebView(this);
                 }
             }
         };
@@ -438,21 +440,18 @@ public class MRAIDView extends RelativeLayout {
             MRAIDLog.i("Destroying Secondary WebView");
             destroyWebView(webViewPart2);
         }
+
+        currentWebView = null;
     }
 
-    private static void destroyWebView(WebView wv) {
-        if (wv != null) {
-            wv.clearHistory();
-            wv.clearCache(true);
-            wv.loadUrl("about:blank");
-            wv.pauseTimers();
-            wv.setWebChromeClient(null);
-            wv.setWebViewClient(null);
-            if (wv.getParent() != null) {
-                ((ViewManager) wv.getParent()).removeView(wv);
-            }
-            wv.destroy();
-        }
+    private static void destroyWebView(@NonNull WebView wv) {
+        wv.clearHistory();
+        wv.clearCache(true);
+        wv.loadUrl("about:blank");
+        wv.pauseTimers();
+        wv.setWebChromeClient(null);
+        wv.setWebViewClient(null);
+        wv.destroy();
     }
 
     /**************************************************************************

@@ -10,8 +10,8 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.1'
 
     sourceSets {
         main {
@@ -30,8 +30,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 23
+        minSdkVersion 11
+        targetSdkVersion 24
         multiDexEnabled true
     }
 
@@ -44,5 +44,5 @@ android {
 
 dependencies {
     //noinspection GradleDependency,GradleDynamicVersion
-    compile "com.android.support:support-v4:23.+"
+    compile "com.android.support:support-v4:24.+"
 }

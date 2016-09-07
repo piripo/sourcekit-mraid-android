@@ -5,13 +5,13 @@ buildscript {
         repositories {
             jcenter()
         }
-        classpath 'com.android.tools.build:gradle:2.0.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
     }
 }
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.1'
+    buildToolsVersion '24.0.2'
 
     sourceSets {
         main {

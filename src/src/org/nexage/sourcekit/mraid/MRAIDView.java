@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -61,6 +62,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @SuppressLint("ViewConstructor")
 public class MRAIDView extends RelativeLayout {
@@ -267,6 +269,8 @@ public class MRAIDView extends RelativeLayout {
         webView.loadDataWithBaseURL(baseUrl, MRAIDHtmlProcessor.processRawHtml(data), "text/html", "UTF-8", null);
 
         injectMraidJs(webView);
+
+        Log.d("micah", "MRAIDView - loading data" + data);
 
         String jsLogLevel = "NONE";
         switch (MRAIDLog.getLoggingLevel()) {
@@ -1292,6 +1296,7 @@ public class MRAIDView extends RelativeLayout {
 
         @Override
         public void onPageFinished(WebView view, String url) {
+            Log.d("micah", "MRAIDView - onPageFinished");
             MRAIDLog.d(MRAID_LOG_TAG, "onPageFinished: " + url);
             super.onPageFinished(view, url);
             if (state == STATE_LOADING) {
@@ -1340,12 +1345,14 @@ public class MRAIDView extends RelativeLayout {
 
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            Log.d("micah", "MRAIDView - onReceivedError");
             MRAIDLog.d(MRAID_LOG_TAG, "onReceivedError: " + description);
             super.onReceivedError(view, errorCode, description, failingUrl);
         }
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("micah", "MRAIDView - shouldOverrideUrlLoading");
             MRAIDLog.d(MRAID_LOG_TAG, "shouldOverrideUrlLoading: " + url);
             if (url.startsWith("mraid://")) {
                 parseCommandUrl(url);

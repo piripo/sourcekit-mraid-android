@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.nexage.sourcekit.mraid.internal.MRAIDLog;
@@ -34,8 +35,11 @@ public class MRAIDNativeFeatureProvider {
     private final MRAIDNativeFeatureManager nativeFeatureManager;
 
     public MRAIDNativeFeatureProvider(Context context, MRAIDNativeFeatureManager nativeFeatureManager) {
+        Log.d("micah", "MRAIDNativeFeatureProvider - constructing");
         this.context = context;
+        Log.d("micah", "MRAIDNativeFeatureProvider - setting nativeFeatureManager");
         this.nativeFeatureManager = nativeFeatureManager;
+        Log.d("micah", "MRAIDNativeFeatureProvider - finished constructing");
     }
 
     final public void callTel(String url) {

@@ -35,11 +35,8 @@ public class MRAIDNativeFeatureProvider {
     private final MRAIDNativeFeatureManager nativeFeatureManager;
 
     public MRAIDNativeFeatureProvider(Context context, MRAIDNativeFeatureManager nativeFeatureManager) {
-        Log.d("micah", "MRAIDNativeFeatureProvider - constructing");
         this.context = context;
-        Log.d("micah", "MRAIDNativeFeatureProvider - setting nativeFeatureManager");
         this.nativeFeatureManager = nativeFeatureManager;
-        Log.d("micah", "MRAIDNativeFeatureProvider - finished constructing");
     }
 
     final public void callTel(String url) {

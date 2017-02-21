@@ -29,14 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.ConsoleMessage;
-import android.webkit.JsPromptResult;
-import android.webkit.JsResult;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -49,19 +42,18 @@ import org.nexage.sourcekit.mraid.internal.MRAIDParser;
 import org.nexage.sourcekit.mraid.properties.MRAIDOrientationProperties;
 import org.nexage.sourcekit.mraid.properties.MRAIDResizeProperties;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 @SuppressLint("ViewConstructor")
@@ -222,7 +214,7 @@ public class MRAIDView extends RelativeLayout {
         super(context);
 
         this.context = context;
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl == null ? "http://localhost/" : baseUrl;
         this.isInterstitial = isInterstitial;
 
         state = STATE_LOADING;
@@ -266,11 +258,7 @@ public class MRAIDView extends RelativeLayout {
 
         currentWebView = webView;
 
-        webView.loadDataWithBaseURL(baseUrl, MRAIDHtmlProcessor.processRawHtml(data), "text/html", "UTF-8", null);
-
-        injectMraidJs(webView);
-
-        Log.d("micah", "MRAIDView - loading data" + data);
+        webView.loadDataWithBaseURL(this.baseUrl, MRAIDHtmlProcessor.processRawHtml(data), "text/html", "UTF-8", null);
 
         String jsLogLevel = "NONE";
         switch (MRAIDLog.getLoggingLevel()) {
@@ -290,7 +278,6 @@ public class MRAIDView extends RelativeLayout {
             case none:
                 break;
         }
-        injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum." + jsLogLevel + ";");
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -606,7 +593,6 @@ public class MRAIDView extends RelativeLayout {
                             webView.setWebChromeClient(null);
                             webView.setWebViewClient(null);
                             webViewPart2 = createWebView();
-                            injectMraidJs(webViewPart2);
                             webViewPart2.loadDataWithBaseURL(baseUrl, content, "text/html", "UTF-8", null);
                             currentWebView = webViewPart2;
                             isExpandingPart2 = true;
@@ -1134,15 +1120,23 @@ public class MRAIDView extends RelativeLayout {
      * These methods provide the means for JavaScript code to talk to native
      * code.
      **************************************************************************/
-
+    private int injections = 0;
     private void injectMraidJs(final WebView wv) {
         if (TextUtils.isEmpty(mraidJs)) {
             String str = Assets.mraidJS;
             byte[] mraidjsBytes = Base64.decode(str, Base64.DEFAULT);
             mraidJs = new String(mraidjsBytes);
         }
-
         injectJavaScript(mraidJs);
+    }
+
+    private InputStream getMraidJsStream(){
+        if (TextUtils.isEmpty(mraidJs)) {
+            String str = Assets.mraidJS;
+            byte[] mraidjsBytes = Base64.decode(str, Base64.DEFAULT);
+            mraidJs = new String(mraidjsBytes);
+        }
+        return new ByteArrayInputStream(mraidJs.getBytes(Charset.forName("UTF-8")));
     }
 
     private void injectJavaScript(String js) {
@@ -1268,6 +1262,11 @@ public class MRAIDView extends RelativeLayout {
             return true;
         }
 
+        @Override
+        public boolean onJsBeforeUnload(WebView view, String url, String message, JsResult result) {
+            return true;
+        }
+
         //		@Override
         //		public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
         //			MRAIDLog.d("JS alert", message);
@@ -1296,7 +1295,6 @@ public class MRAIDView extends RelativeLayout {
 
         @Override
         public void onPageFinished(WebView view, String url) {
-            Log.d("micah", "MRAIDView - onPageFinished");
             MRAIDLog.d(MRAID_LOG_TAG, "onPageFinished: " + url);
             super.onPageFinished(view, url);
             if (state == STATE_LOADING) {
@@ -1345,14 +1343,12 @@ public class MRAIDView extends RelativeLayout {
 
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            Log.d("micah", "MRAIDView - onReceivedError");
             MRAIDLog.d(MRAID_LOG_TAG, "onReceivedError: " + description);
             super.onReceivedError(view, errorCode, description, failingUrl);
         }
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Log.d("micah", "MRAIDView - shouldOverrideUrlLoading");
             MRAIDLog.d(MRAID_LOG_TAG, "shouldOverrideUrlLoading: " + url);
             if (url.startsWith("mraid://")) {
                 parseCommandUrl(url);
@@ -1361,6 +1357,14 @@ public class MRAIDView extends RelativeLayout {
                 open(url);
                 return true;
             }
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            if(url.contains("mraid.js")){
+                return new WebResourceResponse("application/javascript", "UTF-8", getMraidJsStream());
+            }
+            return null;
         }
 
     }

@@ -18,10 +18,8 @@ public class MRAIDNativeFeatureManager {
     private ArrayList<String> supportedNativeFeatures;
 
     public MRAIDNativeFeatureManager(Context context, ArrayList<String> supportedNativeFeatures) {
-        Log.d("micah", "MRAIDNativeFeatureProvider - constructing");
         this.context = context;
         this.supportedNativeFeatures = supportedNativeFeatures;
-        Log.d("micah", "MRAIDNativeFeatureProvider - finished constructing");
     }
 
     public boolean isCalendarSupported() {

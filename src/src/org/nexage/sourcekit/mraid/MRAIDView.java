@@ -258,7 +258,7 @@ public class MRAIDView extends RelativeLayout {
         webView = createWebView();
 
         currentWebView = webView;
-        Log.d("micah", "loading mraid " + MRAIDHtmlProcessor.processRawHtml(data));
+        MRAIDLog.d("hz-m loading mraid " + MRAIDHtmlProcessor.processRawHtml(data));
 
         webView.loadDataWithBaseURL(this.baseUrl, MRAIDHtmlProcessor.processRawHtml(data), "text/html", "UTF-8", null);
 
@@ -512,9 +512,9 @@ public class MRAIDView extends RelativeLayout {
 
     // delegate onBackPressed behavior depending on MRAID type
     public boolean onBackPressed() {
-        Log.d("micah", "MRAIDView - onBackPressed");
+        MRAIDLog.d("hz-m MRAIDView - onBackPressed");
         if (state == STATE_LOADING || state == STATE_HIDDEN) {
-            Log.d("micah", "MRAIDView - onBackPressed - loading or hidden");
+            MRAIDLog.d("hz-m MRAIDView - onBackPressed - loading or hidden");
             return false;
         }
         close();
@@ -528,7 +528,7 @@ public class MRAIDView extends RelativeLayout {
     @JavascriptMRAIDCallback
     protected void close() {
         MRAIDLog.d(MRAID_LOG_TAG + "-JS callback", "close");
-        Log.d("micah", "closing wv: " + webView);
+        MRAIDLog.d("hz-m closing wv: " + webView);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -554,7 +554,7 @@ public class MRAIDView extends RelativeLayout {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @JavascriptMRAIDCallback
     protected void expand(String url) {
-        Log.d("micah", "MRAIDView - expand " + url);
+        MRAIDLog.d("hz-m MRAIDView - expand " + url);
         MRAIDLog.d(MRAID_LOG_TAG + "-JS callback", "expand " + (url != null ? url : "(1-part)"));
 
         // 1-part expansion
@@ -570,7 +570,7 @@ public class MRAIDView extends RelativeLayout {
                 removeResizeView();
             }
             expandHelper(webView);
-            Log.d("micah", "MRAIDView - expand - empty url");
+            MRAIDLog.d("hz-m MRAIDView - expand - empty url");
             return;
         }
 
@@ -580,7 +580,7 @@ public class MRAIDView extends RelativeLayout {
         try {
             url = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            Log.d("micah", "MRAIDView - expand - UnsupportedEncodingException " + e);
+            MRAIDLog.d("hz-m MRAIDView - expand - UnsupportedEncodingException " + e);
             return;
         }
 
@@ -596,7 +596,7 @@ public class MRAIDView extends RelativeLayout {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d("micah", "MRAIDView - expand - url loading thread");
+                MRAIDLog.d("hz-m MRAIDView - expand - url loading thread");
                 final String content = getStringFromUrl(finalUrl);
                 if (!TextUtils.isEmpty(content)) {
                     // Get back onto the main thread to create and load a new WebView.
@@ -611,7 +611,7 @@ public class MRAIDView extends RelativeLayout {
                             webView.setWebViewClient(null);
                             webViewPart2 = createWebView();
                             webViewPart2.loadDataWithBaseURL(baseUrl, content, "text/html", "UTF-8", null);
-                            Log.d("micah", "MRAIDView - expand - switching out currentwebview for " + webViewPart2);
+                            MRAIDLog.d("hz-m MRAIDView - expand - switching out currentwebview for " + webViewPart2);
                             currentWebView = webViewPart2;
                             isExpandingPart2 = true;
                             expandHelper(currentWebView);
@@ -835,7 +835,7 @@ public class MRAIDView extends RelativeLayout {
     }
 
     protected void showAsInterstitial(Activity activity) {
-        Log.d("micah", "MRAIDVIEW - showAsInterstitial");
+        MRAIDLog.d("hz-m MRAIDVIEW - showAsInterstitial");
         showActivity = activity;
         expand(null);
     }
@@ -850,7 +850,7 @@ public class MRAIDView extends RelativeLayout {
         addCloseRegion(expandedView);
         setCloseRegionPosition(expandedView);
 
-        Log.d("micah", "MRAIDView - expandHelper - adding contentview to activity " + context);
+        MRAIDLog.d("hz-m MRAIDView - expandHelper - adding contentview to activity " + context);
         ((Activity) showActivity).addContentView(expandedView, new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         isExpandingFromDefault = true;
@@ -926,7 +926,7 @@ public class MRAIDView extends RelativeLayout {
             destroyWebView(webViewPart2);
             webView.setWebChromeClient(mraidWebChromeClient);
             webView.setWebViewClient(mraidWebViewClient);
-            Log.d("micah", "MRAIDView - closeFromExpanded - setting currentwebview to " + webView);
+            MRAIDLog.d("hz-m MRAIDView - closeFromExpanded - setting currentwebview to " + webView);
             currentWebView = webView;
             currentWebView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
@@ -1200,7 +1200,6 @@ public class MRAIDView extends RelativeLayout {
     }
 
     protected void fireViewableChangeEvent() {
-        new RuntimeException("fireViewableChange - micah").printStackTrace();
         MRAIDLog.d(MRAID_LOG_TAG, "fireViewableChangeEvent");
         injectJavaScript("mraid.fireViewableChangeEvent(" + isViewable + ");");
     }
@@ -1287,7 +1286,7 @@ public class MRAIDView extends RelativeLayout {
 
         @Override
         public boolean onJsBeforeUnload(WebView view, String url, String message, JsResult result) {
-            Log.d("micah", "MRAIDView ChromeClient - onJsBeforeUnload");
+            MRAIDLog.d("hz-m MRAIDView ChromeClient - onJsBeforeUnload");
             return true;
         }
 
@@ -1315,14 +1314,14 @@ public class MRAIDView extends RelativeLayout {
         }
 
         public void onProgressChanged(WebView view, int newProgress) {
-            Log.d("micah", "MRAIDView ChromeClient - onProgressChanged " + newProgress + " wv: " + webView + " view: " + MRAIDView.this);
+            MRAIDLog.d("hz-m MRAIDView ChromeClient - onProgressChanged " + newProgress + " wv: " + webView + " view: " + MRAIDView.this);
         }
         public void onShowCustomView(View view, CustomViewCallback callback) {
-            Log.d("micah", "MRAIDView ChromeClient - showCustomView");
+            MRAIDLog.d("hz-m MRAIDView ChromeClient - showCustomView");
         };
 
         public void onCloseWindow(WebView window) {
-            Log.d("micah", "MRAIDView ChromeClient - onCloseWindow");
+            MRAIDLog.d("hz-m MRAIDView ChromeClient - onCloseWindow");
         }
 
         public void onExceededDatabaseQuota(String url, String databaseIdentifier,
@@ -1330,23 +1329,23 @@ public class MRAIDView extends RelativeLayout {
                                             WebStorage.QuotaUpdater quotaUpdater) {
             // This default implementation passes the current quota back to WebCore.
             // WebCore will interpret this that new quota was declined.
-            Log.d("micah", "MRAIDView WebViewClient - onExceededDatabaseQuota");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onExceededDatabaseQuota");
             quotaUpdater.updateQuota(quota);
         }
 
         public void onReachedMaxAppCacheSize(long requiredStorage, long quota,
                                              WebStorage.QuotaUpdater quotaUpdater) {
-            Log.d("micah", "MRAIDView WebViewClient - onReachedMaxAppCacheSize");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReachedMaxAppCacheSize");
             quotaUpdater.updateQuota(quota);
         }
 
         public void onPermissionRequest(PermissionRequest request) {
-            Log.d("micah", "MRAIDView WebViewClient - onPermissionRequest");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onPermissionRequest");
 
         }
 
         public boolean onJsTimeout() {
-            Log.d("micah", "MRAIDView WebViewClient - onJsTimeout");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onJsTimeout");
             return true;
         }
     }
@@ -1402,53 +1401,53 @@ public class MRAIDView extends RelativeLayout {
         }
 
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            Log.d("micah", "MRAIDView WebViewClient - onPageStarted");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onPageStarted");
         }
 
         public void onPageCommitVisible(WebView view, String url) {
-            Log.d("micah", "MRAIDView WebViewClient - onPageCommitVisibile");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onPageCommitVisibile");
         }
 
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            Log.d("micah", "MRAIDView WebViewClient - onReceivedError");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedError");
         }
 
         public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-            Log.d("micah", "MRAIDView WebViewClient - onReceivedHttpError");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedHttpError");
         }
 
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            Log.d("micah", "MRAIDView WebViewClient - onReceivedSslError");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedSslError");
         }
 
         public void onTooManyRedirects(WebView view, Message cancelMsg,
                                        Message continueMsg) {
             cancelMsg.sendToTarget();
-            Log.d("micah", "MRAIDView WebViewClient - onTooManyRedirects");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onTooManyRedirects");
         }
         public void onReceivedClientCertRequest(WebView view, ClientCertRequest request) {
 
-            Log.d("micah", "MRAIDView WebViewClient - onReceivedClientCertRequest");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedClientCertRequest");
         }
 
         public void onReceivedHttpAuthRequest(WebView view,
                                               HttpAuthHandler handler, String host, String realm) {
-            Log.d("micah", "MRAIDView WebViewClient - onReceivedHttpAuthRequest");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedHttpAuthRequest");
             handler.cancel();
         }
 
         public boolean shouldOverrideKeyEvent(WebView view, KeyEvent event) {
 
-            Log.d("micah", "MRAIDView WebViewClient - shouldOverrideKeyEvent");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - shouldOverrideKeyEvent");
             return false;
         }
 
         public void onScaleChanged(WebView view, float oldScale, float newScale) {
-            Log.d("micah", "MRAIDView WebViewClient - onScaleChanged");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onScaleChanged");
         }
         public void onReceivedLoginRequest(WebView view, String realm,
                                            String account, String args) {
-            Log.d("micah", "MRAIDView WebViewClient - onReceivedLoginRequest");
+            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedLoginRequest");
         }
 
 
@@ -1476,9 +1475,9 @@ public class MRAIDView extends RelativeLayout {
 
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-            Log.d("micah", "shouldInterceptRequest - " + url);
+            MRAIDLog.d("hz-m shouldInterceptRequest - " + url);
             if(url.contains("mraid.js")){
-                Log.d("micah", "shouldInterceptRequest - intercepting mraid - " + url);
+                MRAIDLog.d("hz-m shouldInterceptRequest - intercepting mraid - " + url);
                 post(new Runnable() {
                     @Override
                     public void run() {

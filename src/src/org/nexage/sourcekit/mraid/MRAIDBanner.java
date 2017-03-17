@@ -44,7 +44,6 @@ public class MRAIDBanner extends MRAIDView {
 
     @Override
     protected void expand(String url) {
-        Log.d("micah", "MRAIDBANNER - expand " + url);
         // The only time it is valid to call expand on a banner ad is
         // when the ad is currently in either default or resized state.
         if (state != STATE_DEFAULT && state != STATE_RESIZED) {

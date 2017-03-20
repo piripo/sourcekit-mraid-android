@@ -184,6 +184,7 @@ public class MRAIDView extends RelativeLayout {
     private boolean isExpandingFromDefault;
     private boolean isExpandingPart2;
     private boolean isClosing;
+    private boolean isExpanded;
 
     // used to force full-screen mode on expand and to restore original state on close
     private View titleBar;
@@ -421,6 +422,10 @@ public class MRAIDView extends RelativeLayout {
             webView.setWebViewClient(null);
             webView.loadUrl("about:blank");
         }
+    }
+
+    public boolean isExpanded(){
+        return isExpanded;
     }
 
     public void destroy() {
@@ -854,6 +859,7 @@ public class MRAIDView extends RelativeLayout {
         ((Activity) showActivity).addContentView(expandedView, new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         isExpandingFromDefault = true;
+        isExpanded = true;
     }
 
     private void setResizedViewSize() {
@@ -902,6 +908,7 @@ public class MRAIDView extends RelativeLayout {
         }
 
         isClosing = true;
+        isExpanded = false;
 
         expandedView.removeAllViews();
 

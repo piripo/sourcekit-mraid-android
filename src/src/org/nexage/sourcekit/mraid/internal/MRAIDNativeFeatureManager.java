@@ -2,6 +2,7 @@ package org.nexage.sourcekit.mraid.internal;
 
 import java.util.ArrayList;
 
+import android.util.Log;
 import org.nexage.sourcekit.mraid.MRAIDNativeFeature;
 
 import android.Manifest;
@@ -10,17 +11,17 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 public class MRAIDNativeFeatureManager {
-    
+
 	private final static String TAG = "MRAIDNativeFeatureManager";
-    
+
     private Context context;
     private ArrayList<String> supportedNativeFeatures;
-    
+
     public MRAIDNativeFeatureManager(Context context, ArrayList<String> supportedNativeFeatures) {
         this.context = context;
         this.supportedNativeFeatures = supportedNativeFeatures;
     }
-    
+
     public boolean isCalendarSupported() {
         boolean retval =
                 supportedNativeFeatures.contains(MRAIDNativeFeature.CALENDAR) &&
@@ -50,7 +51,7 @@ public class MRAIDNativeFeatureManager {
         MRAIDLog.d(TAG, "isStorePictureSupported " + retval);
         return retval;
     }
-    
+
     public boolean isTelSupported() {
         boolean retval =
                 supportedNativeFeatures.contains(MRAIDNativeFeature.TEL) &&

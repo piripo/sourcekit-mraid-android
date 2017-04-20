@@ -18,7 +18,7 @@
 		"NONE"    : 4
 	};
 
-	var logLevel = LogLevelEnum.NONE;
+	var logLevel = LogLevelEnum.DEBUG;
 	var log = {};
 
 	log.d = function(msg) {
@@ -161,6 +161,7 @@
 	var currentOrientation = 0;
 
 	var listeners = {};
+	window.listeners = listeners;
 
 	/***************************************************************************
 	 * "official" API: methods called by creative
@@ -629,11 +630,11 @@
 		var args = Array.prototype.slice.call(arguments);
 		args.shift();
 		log.i("fireEvent " + event + " [" + args.toString() + "]");
-		var eventListeners = listeners[event];
+		var eventListeners = (listeners[event]||[]).slice(0);
 		if (eventListeners) {
-			var len = eventListeners.length;
-			log.i(len + " listener(s) found");
-			for (var i = 0; i < len; i++) {
+			log.i(eventListeners.length + " listener(s) found for " + event);
+			for (var i = 0; i < eventListeners.length; i++) {
+			    log.i("firing listener " + i + " for " + event + ": " + eventListeners[i]);
 				eventListeners[i].apply(null, args);
 			}
 		} else {

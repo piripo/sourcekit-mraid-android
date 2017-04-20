@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class MRAIDLog {
 	private static final String TAG = "MRAID";
-	
+
 	public enum LOG_LEVEL {
 
 		verbose (1),
@@ -26,8 +26,8 @@ public class MRAIDLog {
 		}
 
 	}
-	
-	private static LOG_LEVEL LEVEL = LOG_LEVEL.verbose;
+
+	private static LOG_LEVEL LEVEL = LOG_LEVEL.warning;
 
 	public static void d(String msg) {
 		if (LEVEL.getValue() <= LOG_LEVEL.debug.getValue()) {
@@ -98,7 +98,7 @@ public class MRAIDLog {
 		Log.i(TAG, "Changing logging level from :"+LEVEL+". To:"+logLevel);
 		LEVEL = logLevel;
 	}
-	
+
 	public static LOG_LEVEL getLoggingLevel() {
 		return LEVEL;
 	}

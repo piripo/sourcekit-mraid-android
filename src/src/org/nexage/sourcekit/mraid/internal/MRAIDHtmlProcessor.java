@@ -19,9 +19,9 @@ public class MRAIDHtmlProcessor {
         String regex = "<script\\s+[^>]*\\bsrc\\s*=\\s*([\\\"\\\'])mraid\\.js\\1[^>]*>\\s*</script>\\n*";
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(processedHtml);
-        if (matcher.find()) {
-            processedHtml.delete(matcher.start(), matcher.end());
-        }
+//        if (matcher.find()) {
+//            processedHtml.delete(matcher.start(), matcher.end());
+//        }
 
         // Add html, head, and/or body tags as needed.
         boolean hasHtmlTag = rawHtml.contains("<html");

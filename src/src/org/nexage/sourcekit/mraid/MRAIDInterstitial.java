@@ -1,6 +1,7 @@
 package org.nexage.sourcekit.mraid;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.webkit.WebView;
@@ -65,7 +66,7 @@ public class MRAIDInterstitial extends MRAIDView {
         super.closeFromExpanded();
     }
 
-    public void show() {
-        this.showAsInterstitial();
+    public void show(Activity activity) {
+        this.showAsInterstitial(activity);
     }
 }

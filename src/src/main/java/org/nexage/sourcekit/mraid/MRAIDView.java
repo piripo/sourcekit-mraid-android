@@ -1495,9 +1495,10 @@ public class MRAIDView extends RelativeLayout {
             }
             return null;
         }
+    }
 
-
-
+    public boolean isLoaded(){
+        return isPageFinished;
     }
 
     /**************************************************************************

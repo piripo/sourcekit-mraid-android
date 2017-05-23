@@ -137,6 +137,8 @@ public class MRAIDView extends RelativeLayout {
     // gesture detector for capturing unwanted gestures
     private final GestureDetector gestureDetector;
 
+    private boolean wasTouched = false;
+
     // true if this is an interstitial ad (TODO: move behavior to MRAIDInterstitial)
     private final boolean isInterstitial;
 
@@ -347,6 +349,7 @@ public class MRAIDView extends RelativeLayout {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                wasTouched = true;
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_UP:
@@ -633,7 +636,11 @@ public class MRAIDView extends RelativeLayout {
     private void open(String url) {
         try {
             url = URLDecoder.decode(url, "UTF-8");
-            MRAIDLog.d(MRAID_LOG_TAG + "-JS callback", "open " + url);
+            MRAIDLog.d(MRAID_LOG_TAG + "-JS callback", "open " + url + " touched: " + wasTouched);
+            if(!wasTouched){
+                MRAIDLog.d(MRAID_LOG_TAG + "- JS callback", "open called, but no touch recorded, aborting");
+                return;
+            }
             if (nativeFeatureListener != null) {
                 if (url.startsWith("sms")) {
                     nativeFeatureListener.mraidNativeFeatureSendSms(url);

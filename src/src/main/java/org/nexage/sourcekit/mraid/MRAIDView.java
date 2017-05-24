@@ -1492,7 +1492,7 @@ public class MRAIDView extends RelativeLayout {
             MRAIDLog.d("hz-m shouldInterceptRequest - " + url);
             if(url.contains("mraid.js")){
                 MRAIDLog.d("hz-m shouldInterceptRequest - intercepting mraid - " + url);
-                post(new Runnable() {
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         injectJavaScript(webView, "mraid.logLevel = mraid.LogLevelEnum.DEBUG;");

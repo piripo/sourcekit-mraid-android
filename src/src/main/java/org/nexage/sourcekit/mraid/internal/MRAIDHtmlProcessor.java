@@ -28,18 +28,21 @@ public class MRAIDHtmlProcessor {
         boolean hasHeadTag = rawHtml.contains("<head");
         boolean hasBodyTag = rawHtml.contains("<body");
 
-        // basic sanity checks
-        // if the html has no <html> tag but has a head or body it's invalid
-        // if the html has an <html> tag but no <body> tag it's invalid
-        if ((!hasHtmlTag && (hasHeadTag || hasBodyTag)) || (hasHtmlTag && !hasBodyTag)) {
-            return null;
-        }
-
         String ls = System.getProperty("line.separator");
 
-        if (!hasHtmlTag) {
-            processedHtml.insert(0, "<html>" + ls + "<head>" + ls + "</head>" + ls + "<body><div align='center'>" + ls);
-            processedHtml.append("</div></body>" + ls + "</html>");
+        if(!hasHtmlTag){
+            if(!hasBodyTag) {
+                processedHtml.insert(0, "<body><div align='center'>" + ls);
+                processedHtml.append("</div></body>");
+            }
+            if(!hasHeadTag) {
+                processedHtml.insert(0,"<head>" + ls + "</head>" + ls);
+            }
+            // In the !hasBody && hasHead case, we end up with <body><head></head></body>
+            // but that was a terrible case to begin with
+
+            processedHtml.insert(0, "<html>" + ls);
+            processedHtml.append(ls + "</html>");
         } else if (!hasHeadTag) {
             // html tag exists, head tag doesn't, so add it
             regex = "<html[^>]*>";

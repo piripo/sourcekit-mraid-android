@@ -26,12 +26,12 @@ public class MRAIDHtmlProcessor {
         // Add html, head, and/or body tags as needed.
         boolean hasHtmlTag = rawHtml.contains("<html");
         boolean hasHeadTag = rawHtml.contains("<head");
-        boolean hasBodyTag = rawHtml.contains("<body");
+        int bodyTagIdx = rawHtml.indexOf("<body");
 
         String ls = System.getProperty("line.separator");
 
         if(!hasHtmlTag){
-            if(!hasBodyTag) {
+            if(bodyTagIdx == -1) {
                 processedHtml.insert(0, "<body><div align='center'>" + ls);
                 processedHtml.append("</div></body>");
             }
@@ -70,7 +70,44 @@ public class MRAIDHtmlProcessor {
             processedHtml.insert(matcher.end(), ls + metaTag + ls + styleTag);
         }
 
+        bodyTagIdx = processedHtml.indexOf("<body");
+        if (bodyTagIdx != -1) {
+            regex = "<body[^>]*>";
+            pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            matcher = pattern.matcher(processedHtml);
+            if (matcher.find(0)) {
+                processedHtml.insert(matcher.end(), "<script>" + JS_WINDOW_LOAD_CODE + "</script>");
+            }
+
+        }
+
         return processedHtml.toString();
     }
+
+    final static String JS_WINDOW_LOAD_CODE =
+      "(function() {\n"
+    + "  var wasIaLoadFinishedNotified = false;\n"
+    + "  var IA_AD_FINISHED_LOADING_EVENT = 'iaadfinishedloading';\n"
+    + "  var NOTIFY_LOADING_FINISHED_TIMEOUT_IN_MS = 5000;\n"
+    + "  var SUCCESS_STATE = 'success';\n"
+    + "  var FAILURE_STATE = 'failure';\n"
+    + "  var iaNotifyLoadFinished = function(state) {\n"
+    + "    if (!wasIaLoadFinishedNotified) {\n"
+    + "      wasIaLoadFinishedNotified = true;\n"
+    + "      window.location.href = IA_AD_FINISHED_LOADING_EVENT + '://' + state;\n"
+    + "    }\n"
+    + "  }\n"
+    + "  var prevOnload = window.onload;\n"
+    + "  window.onload = function() {\n"
+    + "    if (typeof prevOnload === 'function') {\n"
+    + "      prevOnload.apply();\n"
+    + "    }\n"
+    + "    iaNotifyLoadFinished.apply(null, [SUCCESS_STATE]);\n"
+    + "  };\n"
+    + "  setTimeout(function() {\n"
+    + "    iaNotifyLoadFinished.apply(null, [FAILURE_STATE]);\n"
+    + "  }, NOTIFY_LOADING_FINISHED_TIMEOUT_IN_MS);\n"
+    + "})();";
+
 
 }

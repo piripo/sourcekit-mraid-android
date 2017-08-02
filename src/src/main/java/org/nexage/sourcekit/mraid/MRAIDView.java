@@ -1364,6 +1364,32 @@ public class MRAIDView extends RelativeLayout {
         }
     }
 
+    private void handleFinishedLoading() {
+        isPageFinished = true;
+        injectJavaScript("mraid.setPlacementType('" + (isInterstitial ? "interstitial" : "inline") + "');");
+        setSupportedServices();
+        if (isLaidOut) {
+            setScreenSize();
+            setMaxSize();
+            setCurrentPosition();
+            setDefaultPosition();
+            if (isInterstitial) {
+                showAsInterstitial(showActivity);
+            } else {
+                state = STATE_DEFAULT;
+                fireStateChangeEvent();
+                fireReadyEvent();
+                if (isViewable) {
+                    fireViewableChangeEvent();
+                }
+            }
+        }
+        if (listener != null) {
+            listener.mraidViewLoaded(MRAIDView.this);
+        }
+    }
+
+
     private class MRAIDWebViewClient extends WebViewClient {
 
         @Override
@@ -1371,28 +1397,7 @@ public class MRAIDView extends RelativeLayout {
             MRAIDLog.d(MRAID_LOG_TAG, "onPageFinished: " + url);
             super.onPageFinished(view, url);
             if (state == STATE_LOADING) {
-                isPageFinished = true;
-                injectJavaScript("mraid.setPlacementType('" + (isInterstitial ? "interstitial" : "inline") + "');");
-                setSupportedServices();
-                if (isLaidOut) {
-                    setScreenSize();
-                    setMaxSize();
-                    setCurrentPosition();
-                    setDefaultPosition();
-                    if (isInterstitial) {
-                        showAsInterstitial(showActivity);
-                    } else {
-                        state = STATE_DEFAULT;
-                        fireStateChangeEvent();
-                        fireReadyEvent();
-                        if (isViewable) {
-                            fireViewableChangeEvent();
-                        }
-                    }
-                }
-                if (listener != null) {
-                    listener.mraidViewLoaded(MRAIDView.this);
-                }
+                handleFinishedLoading();
             }
             if (isExpandingPart2) {
                 isExpandingPart2 = false;
@@ -1474,6 +1479,10 @@ public class MRAIDView extends RelativeLayout {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             MRAIDLog.d(MRAID_LOG_TAG, "shouldOverrideUrlLoading: " + url);
+            if (url.startsWith("iaadfinishedloading")) {
+                handleFinishedLoading();
+                return true;
+            }
             if (url.startsWith("mraid://")) {
                 parseCommandUrl(url);
                 return true;

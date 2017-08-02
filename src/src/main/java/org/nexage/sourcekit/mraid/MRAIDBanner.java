@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 
 /**
@@ -26,7 +27,7 @@ public class MRAIDBanner extends MRAIDView {
     ) {
         super(context, baseUrl, data, supportedNativeFeatures, viewListener, nativeFeatureListener, false);
         webView.setBackgroundColor(Color.TRANSPARENT);
-        addView(webView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        addView(webView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     @Override

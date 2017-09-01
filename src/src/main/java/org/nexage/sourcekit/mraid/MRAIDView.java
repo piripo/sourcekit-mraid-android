@@ -457,7 +457,6 @@ public class MRAIDView extends RelativeLayout {
         wv.clearHistory();
         wv.clearCache(true);
         wv.loadUrl("about:blank");
-        wv.pauseTimers();
         wv.setWebChromeClient(null);
         wv.setWebViewClient(null);
         wv.destroy();

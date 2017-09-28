@@ -24,10 +24,30 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.*;
-import android.webkit.*;
+import android.view.GestureDetector;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.webkit.ClientCertRequest;
+import android.webkit.ConsoleMessage;
+import android.webkit.HttpAuthHandler;
+import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
+import android.webkit.PermissionRequest;
+import android.webkit.SslErrorHandler;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
+import android.webkit.WebStorage;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,7 +60,12 @@ import org.nexage.sourcekit.mraid.internal.MRAIDParser;
 import org.nexage.sourcekit.mraid.properties.MRAIDOrientationProperties;
 import org.nexage.sourcekit.mraid.properties.MRAIDResizeProperties;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
@@ -48,12 +73,9 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.logging.Logger;
 
 @SuppressLint("ViewConstructor")
 public class MRAIDView extends RelativeLayout {
@@ -1423,7 +1445,12 @@ public class MRAIDView extends RelativeLayout {
         }
 
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedError");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedError code: " +  error.getErrorCode());
+                MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedError: " + error.getDescription());
+            } else {
+                MRAIDLog.d("hz-m MRAIDView WebViewClient - onReceivedError: " + error);
+            }
         }
 
         public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {

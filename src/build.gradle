@@ -4,33 +4,34 @@ buildscript {
     dependencies {
         repositories {
             jcenter()
+            google()
         }
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     lintOptions {
-      abortOnError false
+        abortOnError false
     }
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 26
+        minSdkVersion 14
+        targetSdkVersion 27
         versionCode 1
         versionName '1.0'
     }
 
     dexOptions {
-      jumboMode true
-      javaMaxHeapSize "4g"
+        jumboMode true
+        javaMaxHeapSize "4g"
     }
 }
 
 dependencies {
     //noinspection GradleDynamicVersion
-    compile "com.android.support:support-v4:25.+"
+    implementation "com.android.support:support-v4:+"
 }

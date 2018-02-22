@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.nexage.sourcekit.mraid.internal.MRAIDLog;
@@ -29,49 +28,46 @@ import java.util.Locale;
 
 public class MRAIDNativeFeatureProvider {
 
-    private static final String TAG = "MRAIDNativeFeatureProvider";
+	public static final String TITLE = "title";
+	public static final String DESCRIPTION = "description";
+	public static final String EVENT_LOCATION = "eventLocation";
+	public static final String EVENT_COLOR = "eventColor";
+	public static final String EVENT_COLOR_KEY = "eventColor_index";
+	public static final String DISPLAY_COLOR = "displayColor";
+	public static final String STATUS = "eventStatus";
+	public static final String ACTION_HANDLE_CUSTOM_EVENT = "android.provider.calendar.action.HANDLE_CUSTOM_EVENT";
+	public static final String EXTRA_CUSTOM_APP_URI = "customAppUri";
+	public static final String EXTRA_EVENT_BEGIN_TIME = "beginTime";
+	public static final String EXTRA_EVENT_END_TIME = "endTime";
+	public static final String EXTRA_EVENT_ALL_DAY = "allDay";
+	public static final String AUTHORITY = "com.android.calendar";
+	private static final String TAG = "MRAIDNativeFeatureProvider";
+	private final Context context;
+	private final MRAIDNativeFeatureManager nativeFeatureManager;
+	public MRAIDNativeFeatureProvider(Context context, MRAIDNativeFeatureManager nativeFeatureManager) {
+		this.context = context;
+		this.nativeFeatureManager = nativeFeatureManager;
+	}
 
-    private final Context context;
-    private final MRAIDNativeFeatureManager nativeFeatureManager;
+	final public void callTel(String url) {
+		if (nativeFeatureManager.isTelSupported()) {
+			Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));
+			context.startActivity(intent);
+		}
+	}
 
-    public MRAIDNativeFeatureProvider(Context context, MRAIDNativeFeatureManager nativeFeatureManager) {
-        this.context = context;
-        this.nativeFeatureManager = nativeFeatureManager;
-    }
+	public void createCalendarEvent(String eventJSON) {
+		if (!nativeFeatureManager.isCalendarSupported()) {
+			return;
+		}
+		try {
+			// Need to fix some of the encoded string from JS
+			eventJSON = eventJSON.replace("\\", "").replace("\"{", "{").replace("}\"", "}");
+			JSONObject jsonObject = new JSONObject(eventJSON);
 
-    final public void callTel(String url) {
-        if (nativeFeatureManager.isTelSupported()) {
-            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));
-            context.startActivity(intent);
-        }
-    }
-
-    public static final String TITLE = "title";
-    public static final String DESCRIPTION = "description";
-    public static final String EVENT_LOCATION = "eventLocation";
-    public static final String EVENT_COLOR = "eventColor";
-    public static final String EVENT_COLOR_KEY = "eventColor_index";
-    public static final String DISPLAY_COLOR = "displayColor";
-    public static final String STATUS = "eventStatus";
-    public static final String ACTION_HANDLE_CUSTOM_EVENT = "android.provider.calendar.action.HANDLE_CUSTOM_EVENT";
-    public static final String EXTRA_CUSTOM_APP_URI = "customAppUri";
-    public static final String EXTRA_EVENT_BEGIN_TIME = "beginTime";
-    public static final String EXTRA_EVENT_END_TIME = "endTime";
-    public static final String EXTRA_EVENT_ALL_DAY = "allDay";
-    public static final String AUTHORITY = "com.android.calendar";
-
-    public void createCalendarEvent(String eventJSON) {
-        if (!nativeFeatureManager.isCalendarSupported()) {
-            return;
-        }
-        try {
-            // Need to fix some of the encoded string from JS
-            eventJSON = eventJSON.replace("\\", "").replace("\"{", "{").replace("}\"", "}");
-            JSONObject jsonObject = new JSONObject(eventJSON);
-
-            String description = jsonObject.optString("description", "Untitled");
-            String location = jsonObject.optString("location", "unknown");
-            String summary = jsonObject.optString("summary");
+			String description = jsonObject.optString("description", "Untitled");
+			String location = jsonObject.optString("location", "unknown");
+			String summary = jsonObject.optString("summary");
 
             /*
              * NOTE: The Java SimpleDateFormat class will not work as is with the W3C spec for
@@ -88,38 +84,38 @@ public class MRAIDNativeFeatureProvider {
              *   "2014-12-21T12:34:56-0500"
              */
 
-            String[] patterns = {
-                    "yyyy-MM-dd'T'HH:mmZ",
-                    "yyyy-MM-dd'T'HH:mm:ssZ",
-            };
+			String[] patterns = {
+					"yyyy-MM-dd'T'HH:mmZ",
+					"yyyy-MM-dd'T'HH:mm:ssZ",
+					};
 
-            String[] dateStrings = new String[2];
-            dateStrings[0] = jsonObject.getString("start");
-            dateStrings[1] = jsonObject.optString("end");
+			String[] dateStrings = new String[2];
+			dateStrings[0] = jsonObject.getString("start");
+			dateStrings[1] = jsonObject.optString("end");
 
-            long startTime = 0;
-            long endTime = 0;
+			long startTime = 0;
+			long endTime = 0;
 
-            for (int i = 0; i < dateStrings.length; i++) {
-                if (TextUtils.isEmpty(dateStrings[i])) {
-                    continue;
-                }
-                // remove the colon in the timezone
-                dateStrings[i] = dateStrings[i].replaceAll("([+-]\\d\\d):(\\d\\d)$", "$1$2");
-                for (String pattern : patterns) {
-                    try {
-                        SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
-                        if (i == 0) {
-                            startTime = sdf.parse(dateStrings[i]).getTime();
-                        } else {
-                            endTime = sdf.parse(dateStrings[i]).getTime();
-                        }
-                        break;
-                    } catch (ParseException e) {
-                        continue;
-                    }
-                }
-            }
+			for (int i = 0; i < dateStrings.length; i++) {
+				if (TextUtils.isEmpty(dateStrings[i])) {
+					continue;
+				}
+				// remove the colon in the timezone
+				dateStrings[i] = dateStrings[i].replaceAll("([+-]\\d\\d):(\\d\\d)$", "$1$2");
+				for (String pattern : patterns) {
+					try {
+						SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
+						if (i == 0) {
+							startTime = sdf.parse(dateStrings[i]).getTime();
+						} else {
+							endTime = sdf.parse(dateStrings[i]).getTime();
+						}
+						break;
+					} catch (ParseException e) {
+						continue;
+					}
+				}
+			}
 
             /*
 			boolean wholeDay = false;
@@ -132,18 +128,18 @@ public class MRAIDNativeFeatureProvider {
              */
 
 
-            Intent intent = new Intent(Intent.ACTION_INSERT).setType("vnd.android.cursor.item/event");
-            intent.putExtra(TITLE, description);
-            intent.putExtra(DESCRIPTION, summary);
-            intent.putExtra(EVENT_LOCATION, location);
+			Intent intent = new Intent(Intent.ACTION_INSERT).setType("vnd.android.cursor.item/event");
+			intent.putExtra(TITLE, description);
+			intent.putExtra(DESCRIPTION, summary);
+			intent.putExtra(EVENT_LOCATION, location);
 
-            if (startTime > 0) {
-                intent.putExtra(EXTRA_EVENT_BEGIN_TIME, startTime);
-            }
+			if (startTime > 0) {
+				intent.putExtra(EXTRA_EVENT_BEGIN_TIME, startTime);
+			}
 
-            if (endTime > 0) {
-                intent.putExtra(EXTRA_EVENT_END_TIME, endTime);
-            }
+			if (endTime > 0) {
+				intent.putExtra(EXTRA_EVENT_END_TIME, endTime);
+			}
 
             /*
 			if (wholeDay) {
@@ -151,116 +147,116 @@ public class MRAIDNativeFeatureProvider {
 			}
              */
 
-            context.startActivity(intent);
-        } catch (JSONException e) {
-            MRAIDLog.e(TAG, "Error parsing JSON: " + e.getLocalizedMessage());
-        }
-    }
+			context.startActivity(intent);
+		} catch (JSONException e) {
+			MRAIDLog.e(TAG, "Error parsing JSON: " + e.getLocalizedMessage());
+		}
+	}
 
-    public void playVideo(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse(url), "video/*");
-        context.startActivity(intent);
-    }
+	public void playVideo(String url) {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setDataAndType(Uri.parse(url), "video/*");
+		context.startActivity(intent);
+	}
 
-    public void openBrowser(String url) {
-        if (url.startsWith("market:")) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            context.startActivity(intent);
-        } else if (url.startsWith("http:") || url.startsWith("https:")) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            context.startActivity(intent);
-        }
-    }
+	public void openBrowser(String url) {
+		if (url.startsWith("market:")) {
+			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+			context.startActivity(intent);
+		} else if (url.startsWith("http:") || url.startsWith("https:")) {
+			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+			context.startActivity(intent);
+		}
+	}
 
-    public void storePicture(final String url) {
-        if (nativeFeatureManager.isStorePictureSupported()) {
-            // Spawn a new thread to download and save the image
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        storePictureInGallery(url);
-                    } catch (Exception e) {
-                        MRAIDLog.e(TAG, e.getLocalizedMessage());
-                    }
-                }
-            }).start();
-        }
-    }
+	public void storePicture(final String url) {
+		if (nativeFeatureManager.isStorePictureSupported()) {
+			// Spawn a new thread to download and save the image
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						storePictureInGallery(url);
+					} catch (Exception e) {
+						MRAIDLog.e(TAG, e.getLocalizedMessage());
+					}
+				}
+			}).start();
+		}
+	}
 
-    public void sendSms(String url) {
-        if (nativeFeatureManager.isSmsSupported()) {
-            Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(url));
-            context.startActivity(intent);
-        }
-    }
+	public void sendSms(String url) {
+		if (nativeFeatureManager.isSmsSupported()) {
+			Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(url));
+			context.startActivity(intent);
+		}
+	}
 
-    @SuppressLint("SimpleDateFormat")
-    private void storePictureInGallery(String url) {
-        // Setting up file to write the image to.
-        SimpleDateFormat gmtDateFormat = new SimpleDateFormat("yyyy-MM-dd-HHmmss");
-        String s =  getAlbumDir() + "/img" + gmtDateFormat.format(new Date()) + ".png";
-        MRAIDLog.i(TAG, "Saving image into: " + s);
-        File f = new File(s);
-        // Open InputStream to download the image.
-        InputStream is;
-        try {
-            is = new URL(url).openStream();
-            // Set up OutputStream to write data into image file.
-            OutputStream os = new FileOutputStream(f);
-            copyStream(is, os);
-            MediaScannerConnection.scanFile(context,
-                    new String[] { f.getAbsolutePath() }, null,
-                    new OnScanCompletedListener() {
+	@SuppressLint("SimpleDateFormat")
+	private void storePictureInGallery(String url) {
+		// Setting up file to write the image to.
+		SimpleDateFormat gmtDateFormat = new SimpleDateFormat("yyyy-MM-dd-HHmmss");
+		String s = getAlbumDir() + "/img" + gmtDateFormat.format(new Date()) + ".png";
+		MRAIDLog.i(TAG, "Saving image into: " + s);
+		File f = new File(s);
+		// Open InputStream to download the image.
+		InputStream is;
+		try {
+			is = new URL(url).openStream();
+			// Set up OutputStream to write data into image file.
+			OutputStream os = new FileOutputStream(f);
+			copyStream(is, os);
+			MediaScannerConnection.scanFile(context,
+			                                new String[]{f.getAbsolutePath()}, null,
+			                                new OnScanCompletedListener() {
 
-                @Override
-                public void onScanCompleted(String path, Uri uri) {
-                    MRAIDLog.d("File saves successfully to " + path);
-                }
-            });
-            MRAIDLog.i(TAG, "Saved image successfully");
-        } catch (MalformedURLException e) {
-            MRAIDLog.e(TAG, "Not able to save image due to invalid URL: " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            MRAIDLog.e(TAG, "Unable to save image: " + e.getLocalizedMessage());
-        }
-    }
+				                                @Override
+				                                public void onScanCompleted(String path, Uri uri) {
+					                                MRAIDLog.d("File saves successfully to " + path);
+				                                }
+			                                });
+			MRAIDLog.i(TAG, "Saved image successfully");
+		} catch (MalformedURLException e) {
+			MRAIDLog.e(TAG, "Not able to save image due to invalid URL: " + e.getLocalizedMessage());
+		} catch (IOException e) {
+			MRAIDLog.e(TAG, "Unable to save image: " + e.getLocalizedMessage());
+		}
+	}
 
-    private void copyStream(InputStream is, OutputStream os) {
-        final int buffer_size = 1024;
-        try {
-            byte[] bytes = new byte[buffer_size];
-            for (;;) {
-                int count = is.read(bytes, 0, buffer_size);
-                if (count == -1) {
-                    break;
-                }
-                os.write(bytes, 0, count);
-            }
-        } catch (Exception ex) {
-            MRAIDLog.i(TAG, "Error saving picture: " + ex.getLocalizedMessage());
-        }
-    }
+	private void copyStream(InputStream is, OutputStream os) {
+		final int buffer_size = 1024;
+		try {
+			byte[] bytes = new byte[buffer_size];
+			for (; ; ) {
+				int count = is.read(bytes, 0, buffer_size);
+				if (count == -1) {
+					break;
+				}
+				os.write(bytes, 0, count);
+			}
+		} catch (Exception ex) {
+			MRAIDLog.i(TAG, "Error saving picture: " + ex.getLocalizedMessage());
+		}
+	}
 
-    private File getAlbumDir() {
-        File storageDir = null;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            storageDir = new File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                    "Image");
-            if (storageDir != null) {
-                if (!storageDir.mkdirs()) {
-                    if (!storageDir.exists()) {
-                        MRAIDLog.i(TAG, "Failed to create camera directory");
-                        return null;
-                    }
-                }
-            }
-        } else {
-            MRAIDLog.i(TAG, "External storage is not mounted READ/WRITE.");
-        }
-        return storageDir;
-    }
+	private File getAlbumDir() {
+		File storageDir = null;
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			storageDir = new File(
+					Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+					"Image");
+			if (storageDir != null) {
+				if (!storageDir.mkdirs()) {
+					if (!storageDir.exists()) {
+						MRAIDLog.i(TAG, "Failed to create camera directory");
+						return null;
+					}
+				}
+			}
+		} else {
+			MRAIDLog.i(TAG, "External storage is not mounted READ/WRITE.");
+		}
+		return storageDir;
+	}
 
 }

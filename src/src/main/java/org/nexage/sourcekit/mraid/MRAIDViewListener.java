@@ -2,16 +2,16 @@ package org.nexage.sourcekit.mraid;
 
 public interface MRAIDViewListener {
 
-    /******************************************************************************
-     * A listener for basic MRAIDView banner ad functionality.
-     ******************************************************************************/
+	/******************************************************************************
+	 * A listener for basic MRAIDView banner ad functionality.
+	 ******************************************************************************/
 
-    public void mraidViewLoaded(MRAIDView mraidView);
+	void mraidViewLoaded(MRAIDView mraidView);
 
-    public void mraidViewExpand(MRAIDView mraidView);
+	void mraidViewExpand(MRAIDView mraidView);
 
-    public void mraidViewClose(MRAIDView mraidView);
+	void mraidViewClose(MRAIDView mraidView);
 
-    public boolean mraidViewResize(MRAIDView mraidView, int width, int height, int offsetX, int offsetY);
+	boolean mraidViewResize(MRAIDView mraidView, int width, int height, int offsetX, int offsetY);
 
 }

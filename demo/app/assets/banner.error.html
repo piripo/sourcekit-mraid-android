@@ -1,11 +1,11 @@
 <html>
-    <head>
-        <meta name='viewport' content='user-scalable=no initial-scale=1.0' />
-        
-        <script src="mraid.js"></script>
-        
-        <style type="text/css">
-            
+<head>
+    <meta name='viewport' content='user-scalable=no initial-scale=1.0'/>
+
+    <script src="mraid.js"></script>
+
+    <style type="text/css">
+
             * {
                 margin: 0;
                 padding: 0;
@@ -18,34 +18,35 @@
                 -webkit-user-select: none;
                 -webkit-text-size-adjust: none;
             }
-        
+
         html,body {
             height: 100%;
             margin: 0;
         }
-        
+
         div {
             width:100%;
             min-height:100%;
             text-align: center;
             color: white;
         }
-        
+
         .default {
             background-color:silver;
         }
-        
+
         .resized {
             background-color:grey;
         }
-        
-            </style>
-        
-    </head>
-    <body>
-        
-        <script type="text/javascript">
-            
+
+
+    </style>
+
+</head>
+<body>
+
+<script type="text/javascript">
+
             var handleStateChange = function(state) {
                 console.log("mraid state: " + mraid.getState());
                 var ad = document.getElementById('ad');
@@ -62,22 +63,23 @@
                     break;
                 }
             }
-        
+
         var handleErrors = function (message, source) {
             alert(source + ' generated an error message: "' + message + '"');
         }
-        
-        
+
+
         mraid.addEventListener("error", handleErrors);
         mraid.addEventListener("", handleStateChange);
-        
-        
-        
-            </script>
-        
-        <div id='ad' class='default' style="text-align:center;">
-            Loading this will cause an error on JS side
-        </div>
-        
-    </body>
+
+
+
+
+</script>
+
+<div id='ad' class='default' style="text-align:center;">
+    Loading this will cause an error on JS side
+</div>
+
+</body>
 </html>

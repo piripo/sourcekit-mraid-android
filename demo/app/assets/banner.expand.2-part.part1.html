@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta name='viewport' content='user-scalable=no initial-scale=1.0' />
-        <script src="mraid.js"></script>
-        <style type="text/css">
-            
+<head>
+    <meta name='viewport' content='user-scalable=no initial-scale=1.0'/>
+    <script src="mraid.js"></script>
+    <style type="text/css">
+
             * {
                 margin: 0;
                 padding: 0;
@@ -17,37 +17,39 @@
                 -webkit-user-select: none;
                 -webkit-text-size-adjust: none;
             }
-        
+
         html,body {
             height: 100%;
         }
-        
+
         div {
             width:100%;
             min-height:100%;
             background-color:silver;
         }
-        
-            </style>
-    </head>
-    
-    <body>
-        
-        <div onclick="expand()" style="text-align:center">
-            <br/>
-            Click anywhere to expand
-        </div>
-        
-        <script>
-            
+
+
+    </style>
+</head>
+
+<body>
+
+<div onclick="expand()" style="text-align:center">
+    <br/>
+    Click anywhere to expand
+</div>
+
+<script>
+
             console.log("JS script loaded");
-            
+
             function expand() {
                 console.log("expand");
                 mraid.expand("banner.expand.2-part.part2.html");
             }
-        
-        </script>
-        
-    </body>
+
+
+</script>
+
+</body>
 </html>

@@ -1,25 +1,27 @@
 apply plugin: 'com.android.library'
 
 buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+
     dependencies {
-        repositories {
-            jcenter()
-            google()
-        }
         classpath 'com.android.tools.build:gradle:3.0.1'
     }
+}
+
+repositories {
+    jcenter()
+    google()
 }
 
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
 
-    lintOptions {
-        abortOnError false
-    }
-
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 27
         versionCode 1
         versionName '1.0'
@@ -32,6 +34,5 @@ android {
 }
 
 dependencies {
-    //noinspection GradleDynamicVersion
-    implementation "com.android.support:support-v4:+"
+    implementation "com.android.support:support-v4:27.0.2"
 }

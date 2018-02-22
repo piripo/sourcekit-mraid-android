@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-	<script src="mraid.js"></script>
-	<style type="text/css">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <script src="mraid.js"></script>
+    <style type="text/css">
 
 	* {
 		margin: 0;
@@ -37,21 +37,22 @@
 		background-color:blue;
 	}
 
-	</style>
+
+    </style>
 </head>
 
 <body>
 
-	<div id="default" onclick="expand()">
-		Click to expand.
-	</div>
+<div id="default" onclick="expand()">
+    Click to expand.
+</div>
 
-	<div id="expanded"  onclick="collapse()">
-		This is the expanded view.<br/>Click anywhere to close.
-	</div>
+<div id="expanded" onclick="collapse()">
+    This is the expanded view.<br/>Click anywhere to close.
+</div>
 
-	<script>
-	
+<script>
+
 	function stateChangeHandler(state) {
 		if (state === mraid.STATES.DEFAULT) {
 			document.getElementById("default").style.display = "block";
@@ -75,7 +76,8 @@
 		mraid.close();
 	}
 
-	</script>
+
+</script>
 
 </body>
 </html>

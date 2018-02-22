@@ -4,29 +4,6 @@ import android.util.Log;
 
 public class MRAIDLog {
 	private static final String TAG = "MRAID";
-
-	public enum LOG_LEVEL {
-
-		verbose (1),
-		debug (2),
-		info (3),
-		warning (4),
-		error (5),
-		none (6);
-
-		private int value;
-
-		private LOG_LEVEL(int value) {
-			this.value = value;
-
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-	}
-
 	private static LOG_LEVEL LEVEL = LOG_LEVEL.warning;
 
 	public static void d(String msg) {
@@ -94,12 +71,34 @@ public class MRAIDLog {
 		}
 	}
 
+	public static LOG_LEVEL getLoggingLevel() {
+		return LEVEL;
+	}
+
 	public static void setLoggingLevel(LOG_LEVEL logLevel) {
-		Log.i(TAG, "Changing logging level from :"+LEVEL+". To:"+logLevel);
+		Log.i(TAG, "Changing logging level from :" + LEVEL + ". To:" + logLevel);
 		LEVEL = logLevel;
 	}
 
-	public static LOG_LEVEL getLoggingLevel() {
-		return LEVEL;
+	public enum LOG_LEVEL {
+
+		verbose(1),
+		debug(2),
+		info(3),
+		warning(4),
+		error(5),
+		none(6);
+
+		private int value;
+
+		LOG_LEVEL(int value) {
+			this.value = value;
+
+		}
+
+		public int getValue() {
+			return value;
+		}
+
 	}
 }

@@ -1,9 +1,9 @@
 <html>
-    <head>
-        <script src="mraid.js"></script>
-        <script>
+<head>
+    <script src="mraid.js"></script>
+    <script>
             mraid.addEventListener("ready", adReady);
-            
+
             function adReady() {
                 var ad = document.getElementById('all');
                 var supported = " ";
@@ -35,9 +35,10 @@
                 }
                 ad.innerHTML = "<font size='2'>" + "Supported :" + supported + "<br/>" + "Not Supported :" + notSupported + "</font>";
             }
-        </script>
-    </head>
-    <body align='center' style="background-color:silver;" style="font-size:6px;">
-        <div id="all">Supports</div>
-    </body>
+
+    </script>
+</head>
+<body align='center' style="background-color:silver;" style="font-size:6px;">
+<div id="all">Supports</div>
+</body>
 </html>

@@ -3,15 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <ImageView
         android:layout_width="300dp"
         android:layout_height="120dp"
         android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/about"
         android:padding="20dp"
-        android:src="@drawable/seal"
-        android:contentDescription="@string/about" />
+        android:src="@drawable/seal" />
 
     <TextView
         android:layout_width="fill_parent"

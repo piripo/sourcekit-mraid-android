@@ -3,9 +3,9 @@
 
 <!-- Setup Javascript -->
 <script language="javascript">
-    
+
     mraid.addEventListener("error", handleErrorEvent);
-    
+
     function handleErrorEvent(message, action) {
         var msg = "MRAID ERROR";
         if (action != null) {
@@ -16,15 +16,17 @@
     }
 
 
-    </script>
+
+</script>
 
 <script>
-    
+
     function playVideo() {
         mraid.playVideo("http://techslides.com/demos/sample-videos/small.mp4");
     }
 
-    </script>
+
+</script>
 
 <div style="width:99%">
     <button type='button' onclick='playVideo();'>Play Video</button>
